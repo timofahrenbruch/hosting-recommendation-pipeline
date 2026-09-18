@@ -12,5 +12,3 @@ Step-by-step working plan: [`PLAN.md`](./PLAN.md).
 - **Langflow** — visual pipeline orchestration (Profiler → Discovery → Extraction → Matching)
 - **ScrapeGraphAI** — provider search & structured data extraction
 - **LangSmith** — tracing, evaluation, cost tracking
-
-Structure and setup docs will be added here as the pipeline gets built.

@@ -1,58 +1,61 @@
 # Vorgehensplan
 
-Abgeleitet aus dem Proposal (Kapitel 6 "Project planning" und 7 "Outline"). Vier Arbeitspakete (AP), die aufeinander aufbauen. AP1 ist unabhängig vom LLM-Backend-Entscheid und kann sofort starten.
+## Phase 0 — Vorfragen
 
-## Offene Vorfragen (parallel zu AP1 klären)
+- [ ] LLM-Backend (BFH vs. Claude) mit Raúl klären
+- [ ] Scope Developer-VPS/Cloud (Hetzner, netcup, Contabo, DigitalOcean) mit Betreuer klären
 
-- [ ] **LLM-Backend:** BFH-Inferenzdienst vs. kommerzielles Modell (z. B. Claude) — mit Betreuer abstimmen
-- [ ] **Scope Developer-VPS/Cloud:** Zählen Hetzner, netcup, Contabo, DigitalOcean zum Untersuchungsrahmen? — mit Betreuer abstimmen
-- [ ] Falls BFH-Endpoint: Zugang unter `https://infra.pages.ti.bfh.ch/mlmp/src/llm/` beantragen
+## Phase 1 — Konzeption
 
-## AP1 — Anforderungsmatrix & Konzeption
+Reihenfolge wichtig: Scoring bestimmt Schema, nicht umgekehrt.
 
-Kein Code, keine Infrastruktur nötig — kann sofort starten.
+- [ ] Referenzprofile + Erwartungswerte, alle 3 Szenarien → `docs/szenarien/szenario-{1,2,3}.md`
+- [ ] Scoring-Spezifikation (K.O., Gewichte, Normalisierung, fehlende Werte) → `docs/scoring-spezifikation.md`
+- [ ] Scoring-Engine als Python-Modul, unit-getestet → `scoring/engine.py`, `tests/test_scoring.py`
+- [ ] Extraktionsschema ableiten → `scraping/extraction_schema.json`
+- [ ] Profiler-Schema ableiten → `schemas/profiler_schema.json`
+- [ ] Anbieterliste (6 unstrittige zuerst, 4 strittige nach Scope-Entscheid) → `scraping/provider_list.yaml`
+- [ ] Evaluator-Logik (Profil-Vergleich, Kategorie-Vergleich) → `evaluation/evaluators/`
 
-- [ ] App-Typen festlegen (die 3 Testszenarien aus Kapitel 4, ggf. verfeinern)
-- [ ] Mindestanforderungen pro App-Typ ausformulieren (Traffic, Budget, CPU/RAM, Docker, Skalierbarkeit, Backup, Support)
-- [ ] Anbieterliste finalisieren (10 Anbieter, abhängig vom Scope-Entscheid oben)
-- [ ] Extraktionsschema definieren (Preis, CPU, RAM, Storage, Bandbreite, Backup, Docker-Support, Vertragslaufzeit)
-- [ ] Scoring-Algorithmus verfeinern: K.O.-Kriterien, Gewichte, Min-Max-Normalisierung, Umgang mit fehlenden Werten (Proposal Kapitel 4 als Ausgangsbasis)
+Doku: Kapitel Anforderungsanalyse + Grundlagen können jetzt entstehen.
 
-**Output:** `scraping/provider_list.yaml`, `scraping/extraction_schema.json`, kurze Doku der Scoring-Logik
+## Phase 2 — MVP (End-zu-Ende, gemockt)
 
-## AP2 — Umsetzung in Langflow
+- [ ] Langflow Desktop, Version pinnen, `lfx`-Sync einrichten → `flows/`, `docs/entscheidungen.md`
+- [ ] Szenario 1 wählen
+- [ ] 4 Knoten verdrahten — Profiler: Referenzprofil direkt eingespeist. Discovery: statische URL-Liste. Extraktion: Fixture-JSON mit bewusster Lücke. Matching: echt (Engine aus Phase 1) → `flows/mvp_szenario1.json`, `fixtures/`, `components/matching_node.py`
 
-Startet, sobald das LLM-Backend feststeht.
+Doku: Grundgerüst Kapitel Umsetzung.
 
-- [ ] Langflow Desktop installieren, verwendete Version dokumentieren/fixieren
-- [ ] LLM-Backend anbinden
-- [ ] Grobe End-zu-End-Pipeline zuerst (Profiler → Discovery → Extraktion → Matching), einfache Logik, damit eine Anfrage einmal komplett durchläuft
-- [ ] Komponenten einzeln verfeinern, in der Reihenfolge Profiler → Discovery → Extraktion → Matching
-- [ ] Scoring-Algorithmus als Custom-Code-Komponente implementieren, mit Unit-Tests abgesichert
-- [ ] `lfx` einrichten (Flow-Sync Desktop ↔ Git, siehe Repo-Setup)
+## Phase 3 — Komponenten real
 
-**Output:** `flows/*.json`, `components/`, `tests/`
+Pro Szenario komplett durchziehen, dann nächstes.
 
-## AP3 — Test und Auswertung mit LangSmith
+- [ ] Profiler real, Szenario 1 (LLM-Backend muss stehen) — Ziel: Profil = Referenzprofil
+- [ ] Discovery real, Szenario 1 — Ziel: richtige Anbieterseiten
+- [ ] Extraktion real, Szenario 1 — Ziel: fehlende Felder = `null`, nie geschätzt
+- [ ] Matching-Check mit echten Daten, Szenario 1 — Ziel: Szenario 1 komplett real
+- [ ] Szenario 2 (Scope-Entscheid muss stehen) — Ziel: K.O. schliesst Shared aus, Empfehlung = VPS/Cloud
+- [ ] Szenario 3 — Ziel: Empfehlung zwischen Extremen aus 1/2
 
-- [ ] LangSmith-Projekt einrichten; bei BFH-Modell eigenen Model-Price-Map-Eintrag anlegen
-- [ ] Die 3 Testszenarien als LangSmith-Dataset hinterlegen
-- [ ] Custom Evaluators bauen (Profiling-Korrektheit, Kategorie-Korrektheit)
-- [ ] Pipeline pro Szenario laufen lassen, Traces auswerten (Kosten, Latenz, Datenvollständigkeit)
-- [ ] Die 5 Erfolgskriterien aus Kapitel 4 gegenprüfen
+Doku: Kapitel Umsetzung wächst pro Schritt mit.
 
-**Output:** `evaluation/`, LangSmith-Dataset + Traces
+## Phase 4 — LangSmith
 
-## AP4 — Dokumentation
+- [ ] LangSmith-Projekt + Price-Map-Eintrag
+- [ ] Dataset aus Phase 1
+- [ ] Evaluatoren andocken
+- [ ] Kosten-Richtwert (≤ CHF 0.20/Durchlauf) kalibrieren
+- [ ] Runs auswerten: Profiling-/Kategorie-Korrektheit, Kosten, Latenz, Datenvollständigkeit
+- [ ] 5 Erfolgskriterien gegenprüfen → `evaluation/results.md`
 
-- [ ] Bericht schreiben, Kapitelstruktur gemäss Proposal-Outline (Einleitung, Grundlagen, Anforderungsanalyse, Umsetzung, Test & Auswertung, Diskussion, Fazit)
-- [ ] Code/Repo-Doku vervollständigen
-- [ ] Demo anhand der 3 Testszenarien vorbereiten
+Doku: Kapitel Test & Auswertung.
 
-## Reihenfolge auf einen Blick
+## Phase 5 — Abschluss
 
-```
-Vorfragen (Betreuer)  ─┐
-                       ├─→ AP2 → AP3 → AP4
-AP1 (sofort startbar) ─┘
-```
+- [ ] Diskussion (Risiken: Websuche, Scoring-Aufwand, Langflow-Version, Profiler-Mehrdeutigkeit)
+- [ ] Fazit
+- [ ] Repo-Doku finalisieren
+- [ ] Demo vorbereiten
+- [ ] Review gegen Outline + Erfolgskriterien
+- [ ] Abgabe
