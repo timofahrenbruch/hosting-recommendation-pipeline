@@ -2,7 +2,7 @@
 
 ## Phase 0 — Vorfragen
 
-- [ ] LLM-Backend (BFH vs. Claude) mit Raúl klären
+- [x] LLM-Backend (BFH vs. Claude) mit Raúl klären → BFH, siehe `docs/entscheidungen.md`
 - [ ] Scope Developer-VPS/Cloud (Hetzner, netcup, Contabo, DigitalOcean) mit Betreuer klären
 
 ## Phase 1 — Konzeption
