@@ -4,7 +4,7 @@ BSc thesis project (BFH, Wirtschaftsinformatik) building a Langflow-based multi-
 
 ## Status
 
-Proposal phase — see [`Fahrenbruch-Timo_BT-Proposal.docx`](./Fahrenbruch-Timo_BT-Proposal.docx). No implementation yet.
+Proposal phase — see [`Fahrenbruch-Timo_BT-Proposal.docx`](./docs/Fahrenbruch-Timo_BT-Proposal.docx). No implementation yet.
 Step-by-step working plan: [`PLAN.md`](./PLAN.md).
 
 ## Planned stack

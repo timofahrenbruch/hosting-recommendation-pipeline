@@ -17,3 +17,27 @@
 - Frage: zählen Hetzner, netcup, Contabo, DigitalOcean (Developer-VPS/Cloud) zum Untersuchungsrahmen, oder nur die 6 klassischen Hoster (Hostpoint, Infomaniak, cyon, IONOS, STRATO, All-Inkl)?
 - **Entscheid:** einschliessen — volle 10er-Anbieterliste
 - Begründung: ohne sie hätte Szenario 2 (Docker zwingend, Auto-Scaling, hohe Last) kaum Kandidaten — von den 6 klassischen deckt nur Infomaniak Cloud/VPS ab. K.O.-Filter + Ranking liessen sich damit kaum sinnvoll demonstrieren.
+
+## 2026-09-19 — Szenarien maschinenlesbar gemacht
+
+- Felder, Stufen (0–2), App-Typen und Angebotskategorien zentral in `docs/anforderungskatalog.md`
+- Regel: jedes Profilfeld hat einen Verwender (K.O., Scoring, Discovery, Evaluator), alle Werte typisiert statt Prosa
+- Ranges aus dem Proposal auf Mindestwerte reduziert (z. B. RAM 16–32 GB → `ram_gb_min: 16`), da nur der Mindestwert für den K.O.-Filter zählt
+- Nicht im Profil: Bandbreite (nur Angebotsseite bewertet), Standort, Tech-Stack (kein Verwender)
+- Ressourcentyp im Proposal nicht spezifiziert → `egal` für alle 3 Szenarien
+- Pro Szenario neu: simulierter Nutzer (feste Antworten, nötig für reproduzierbare Profiling-Evaluation) und maschinenprüfbarer Erwartungswert (`kategorie_erwartet`, `kategorien_ausgeschlossen`)
+- Stufen-Zuordnung eigene Einschätzung aus Proposal-Freitext, z. B. S3 Support "Business während Geschäftszeiten" → 1, S2 "Business/SLA" → 2
+- Neues K.O.-Feld `verwaltung_min` (`egal`/`managed`), nicht im Proposal. Grund: ohne dieses Feld gewinnt in S1 ein günstiger unverwalteter VPS (besteht alle K.O., schlägt Shared-Hosting bei Preis/CPU/RAM) → falsche Empfehlung für Nutzer ohne Admin-Know-how. S1 = `managed`, S2/S3 = `egal`
+- Support-Stufe 2 umfasst auch garantierte Verfügbarkeit (Uptime-SLA)
+- Standort/Datenschutz bewusst ausgeschlossen: nicht im Proposal, alle 10 Anbieter mit CH/EU-Rechenzentren → kaum Filterwirkung. Wird in Diskussion/Ausblick erwähnt
+- Weitere bewusst ausgeschlossene Faktoren: siehe `docs/anforderungskatalog.md`
+
+## 2026-09-19 — Profiler: fachliche Fragen statt technischer
+
+- Abweichung vom Proposal: Profiler fragt nicht direkt nach CPU/RAM usw., sondern nach Funktion der Anwendung (Inhalte, Besucher, Ausfallfolgen, Team-Know-how …)
+- Aufbau: LLM-Dialog → Funktionsprofil → deterministische Ableitungsregeln (Python, unit-getestet) → technisches Profil gemäss `docs/anforderungskatalog.md`
+- Begründung: realistischer für Nutzer ohne Technikwissen; Ableitung bleibt nachvollziehbar und reproduzierbar statt LLM-Blackbox
+- Evaluation zweistufig: (a) Funktionsprofil korrekt erhoben, (b) Regeln liefern Referenzprofil → Fehlerquelle lokalisierbar
+- Technisches Referenzprofil bleibt Ground Truth und Schnittstelle für Scoring/Extraktion — Schritte 1.2–1.4 nicht betroffen
+- Umsetzung erst vor Profiler real (Phase 3), siehe `PLAN.md`
+- Risiko: Regeln an 3 Referenzprofilen kalibriert → Overfitting. Gegenmassnahme: vollständige Sizing-Tabelle mit Begründung pro Zelle; Thema in Diskussion

@@ -9,13 +9,12 @@
 
 Reihenfolge wichtig: Scoring bestimmt Schema, nicht umgekehrt.
 
-- [ ] Referenzprofile + Erwartungswerte, alle 3 Szenarien → `docs/szenarien/szenario-{1,2,3}.md`
+- [x] Referenzprofile + Erwartungswerte, alle 3 Szenarien → `docs/anforderungskatalog.md`, `docs/szenarien/szenario-{1,2,3}.md`
 - [ ] Scoring-Spezifikation (K.O., Gewichte, Normalisierung, fehlende Werte) → `docs/scoring-spezifikation.md`
 - [ ] Scoring-Engine als Python-Modul, unit-getestet → `scoring/engine.py`, `tests/test_scoring.py`
 - [ ] Extraktionsschema ableiten → `scraping/extraction_schema.json`
-- [ ] Profiler-Schema ableiten → `schemas/profiler_schema.json`
-- [ ] Anbieterliste (6 unstrittige zuerst, 4 strittige nach Scope-Entscheid) → `scraping/provider_list.yaml`
-- [ ] Evaluator-Logik (Profil-Vergleich, Kategorie-Vergleich) → `evaluation/evaluators/`
+- [ ] Anbieterliste (10 Anbieter) → `scraping/provider_list.yaml`
+- [ ] Evaluator-Logik Kategorie-Vergleich → `evaluation/evaluators/`
 
 Doku: Kapitel Anforderungsanalyse + Grundlagen können jetzt entstehen.
 
@@ -31,7 +30,16 @@ Doku: Grundgerüst Kapitel Umsetzung.
 
 Pro Szenario komplett durchziehen, dann nächstes.
 
-- [ ] Profiler real, Szenario 1 (LLM-Backend muss stehen) — Ziel: Profil = Referenzprofil
+Vorbereitung Profiler (fachliche Fragen, technische Ableitung per Regeln):
+
+- [ ] Funktionsprofil definieren (fachliche Felder) → `docs/anforderungskatalog.md`
+- [ ] Ableitungsregeln + Sizing-Tabelle (alle App-Typen × Lastklassen, mit Begründung) → `docs/ableitungsregeln.md`
+- [ ] Ableitungsregeln als Python-Modul, unit-getestet (3 Funktionsprofile → 3 Referenzprofile) → `profiler/ableitung.py`, `tests/test_ableitung.py`
+- [ ] Szenarien: simulierter Nutzer nur fachlich, Referenz-Funktionsprofil ergänzen → `docs/szenarien/`
+- [ ] Funktionsprofil-Schema → `schemas/funktionsprofil_schema.json`
+- [ ] Profiling-Evaluator zweistufig (Funktionsprofil, abgeleitetes technisches Profil) → `evaluation/evaluators/`
+
+- [ ] Profiler real, Szenario 1 — Ziel: Funktionsprofil = Referenz, abgeleitetes Profil = Referenzprofil
 - [ ] Discovery real, Szenario 1 — Ziel: richtige Anbieterseiten
 - [ ] Extraktion real, Szenario 1 — Ziel: fehlende Felder = `null`, nie geschätzt
 - [ ] Matching-Check mit echten Daten, Szenario 1 — Ziel: Szenario 1 komplett real
@@ -53,7 +61,7 @@ Doku: Kapitel Test & Auswertung.
 
 ## Phase 5 — Abschluss
 
-- [ ] Diskussion (Risiken: Websuche, Scoring-Aufwand, Langflow-Version, Profiler-Mehrdeutigkeit)
+- [ ] Diskussion (Risiken: Websuche, Scoring-Aufwand, Langflow-Version, Profiler-Mehrdeutigkeit, Overfitting Ableitungsregeln)
 - [ ] Fazit
 - [ ] Repo-Doku finalisieren
 - [ ] Demo vorbereiten
