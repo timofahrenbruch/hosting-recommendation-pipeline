@@ -15,14 +15,19 @@ Reihenfolge wichtig: Scoring bestimmt Schema, nicht umgekehrt.
 - [ ] Extraktionsschema ableiten → `scraping/extraction_schema.json`
 - [ ] Anbieterliste (10 Anbieter) → `scraping/provider_list.yaml`
 - [ ] Evaluator-Logik Kategorie-Vergleich → `evaluation/evaluators/`
+- [ ] 1–2 Kontrollszenarien definieren, nicht für Kalibrierung verwenden (erst in Phase 4 laufen lassen) → `docs/szenarien/kontrollszenario-{1,2}.md`
+- [ ] Referenzprofile + Erwartungswerte mit Raúl plausibilisieren
 
 Doku: Kapitel Anforderungsanalyse + Grundlagen können jetzt entstehen.
 
 ## Phase 2 — MVP (End-zu-Ende, gemockt)
 
 - [ ] Langflow Desktop, Version pinnen, `lfx`-Sync einrichten → `flows/`, `docs/entscheidungen.md`
+- [ ] LangSmith-Projekt + Price-Map-Eintrag, Tracing ab erstem Durchlauf (Iterationen messbar)
+- [ ] Dataset aus Phase 1 anlegen
 - [ ] Szenario 1 wählen
 - [ ] 4 Knoten verdrahten — Profiler: Referenzprofil direkt eingespeist. Discovery: statische URL-Liste. Extraktion: Fixture-JSON mit bewusster Lücke. Matching: echt (Engine aus Phase 1) → `flows/mvp_szenario1.json`, `fixtures/`, `components/matching_node.py`
+- [ ] MVP als Variante B (ohne Profiler) weiterführen, nicht ersetzen → `flows/variante_b.json`
 
 Doku: Grundgerüst Kapitel Umsetzung.
 
@@ -38,6 +43,7 @@ Vorbereitung Profiler (fachliche Fragen, technische Ableitung per Regeln):
 - [ ] Szenarien: simulierter Nutzer nur fachlich, Referenz-Funktionsprofil ergänzen → `docs/szenarien/`
 - [ ] Funktionsprofil-Schema → `schemas/funktionsprofil_schema.json`
 - [ ] Profiling-Evaluator zweistufig (Funktionsprofil, abgeleitetes technisches Profil) → `evaluation/evaluators/`
+- [ ] Variante B: Laien-Eingaben pro Szenario definieren (typische Fehleinschätzungen, z. B. RAM zu knapp, Docker vergessen) → `docs/szenarien/`
 
 - [ ] Profiler real, Szenario 1 — Ziel: Funktionsprofil = Referenz, abgeleitetes Profil = Referenzprofil
 - [ ] Discovery real, Szenario 1 — Ziel: richtige Anbieterseiten
@@ -50,20 +56,21 @@ Doku: Kapitel Umsetzung wächst pro Schritt mit.
 
 ## Phase 4 — LangSmith
 
-- [ ] LangSmith-Projekt + Price-Map-Eintrag
-- [ ] Dataset aus Phase 1
 - [ ] Evaluatoren andocken
 - [ ] Kosten-Richtwert (≤ CHF 0.20/Durchlauf) kalibrieren
 - [ ] Runs auswerten: Profiling-/Kategorie-Korrektheit, Kosten, Latenz, Datenvollständigkeit
-- [ ] 5 Erfolgskriterien gegenprüfen → `evaluation/results.md`
+- [ ] Variantenvergleich: A vs. B (Referenz-Eingabe) vs. B (Laien-Eingabe) als separate Experimente, gleiches Dataset
+- [ ] Kontrollszenarien durchspielen (nicht Teil der Erfolgskriterien)
+- [ ] 6 Erfolgskriterien gegenprüfen → `evaluation/results.md`
 
-Doku: Kapitel Test & Auswertung.
+Doku: Kapitel Evaluation (nur Ergebnisse, Vorgehen steht im Methodenkapitel).
 
 ## Phase 5 — Abschluss
 
-- [ ] Diskussion (Risiken: Websuche, Scoring-Aufwand, Langflow-Version, Profiler-Mehrdeutigkeit, Overfitting Ableitungsregeln)
+- [ ] Diskussion: Forschungsfragen beantworten (inkl. Mehrwert Profiler), Beitrag (Artefakt, Profiler-Erkenntnis, Vorgehen Langflow), Grenzen der Evaluation (selbst erstellte Szenarien, nur 3 + Kontrollszenarien), Risiken (Websuche, Scoring-Aufwand, Langflow-Version, Profiler-Mehrdeutigkeit, Overfitting Ableitungsregeln)
 - [ ] Fazit
+- [ ] Management Summary
 - [ ] Repo-Doku finalisieren
 - [ ] Demo vorbereiten
-- [ ] Review gegen Outline + Erfolgskriterien
+- [ ] Review gegen Outline, Erfolgskriterien und DSR-Guidelines (Tabelle im Proposal, Kap. 4.1)
 - [ ] Abgabe

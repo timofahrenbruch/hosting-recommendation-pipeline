@@ -41,3 +41,21 @@
 - Technisches Referenzprofil bleibt Ground Truth und Schnittstelle für Scoring/Extraktion — Schritte 1.2–1.4 nicht betroffen
 - Umsetzung erst vor Profiler real (Phase 3), siehe `PLAN.md`
 - Risiko: Regeln an 3 Referenzprofilen kalibriert → Overfitting. Gegenmassnahme: vollständige Sizing-Tabelle mit Begründung pro Zelle; Thema in Diskussion
+
+## 2026-09-25 — Zwei Pipeline-Varianten (mit/ohne Profiler)
+
+- Anlass: Raúl bezweifelt, dass der Profiler einen Mehrwert bietet
+- **Entscheid:** Pipeline in zwei Varianten. A: Profiler vorgelagert, fachliche Fragen → technische Ableitung. B: ohne Profiler, Nutzer gibt technische Spezifikationen direkt ein (schema-validiert)
+- Discovery, Extraktion, Matching in beiden Varianten identisch → Unterschiede eindeutig dem Profiler zuordenbar
+- Neue Unterfrage 2 im Proposal: Mehrwert des Profilers (Empfehlungsqualität, Kosten, Latenz)
+- Variante B zweimal laufen lassen: mit Referenz-Spezifikationen (versierter Nutzer) und mit Laien-Eingaben. Sonst bekommt B immer die korrekten Werte und der Vergleich ist unfair
+- MVP aus Phase 2 (Referenzprofil direkt eingespeist) = Grundlage für Variante B
+
+## 2026-09-25 — Abgleich mit DSR-Guidelines
+
+- Proposal gegen die 7 Guidelines (Hevner et al. 2004) und die BFH-Struktur für DSR-Arbeiten geprüft, bewusst praxisnah gehalten
+- Neu im Proposal: Beitrag der Arbeit benannt, Teil-Artefakte (Construct/Model/Method), Evaluationsmethoden (descriptive, testing, experimental), Guidelines-Tabelle, Methodenkapitel in Outline, Management Summary
+- Kontrollszenarien (1–2) gegen Overfitting: werden nicht zur Kalibrierung verwendet, erst in der Evaluation durchgespielt
+- LangSmith-Tracing ab MVP statt erst in Phase 4, damit Iterationen messbar sind
+- Literatur minimal ergänzt: vom Brocke et al. (2020), Triantaphyllou (2000) für WSM
+
