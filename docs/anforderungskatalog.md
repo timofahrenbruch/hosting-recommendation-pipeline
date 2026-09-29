@@ -1,27 +1,53 @@
 # Anforderungskatalog
 
-Gemeinsame Felddefinitionen für Referenzprofile, Profiler-Schema (1.5), Extraktionsschema (1.4) und Scoring (1.2).
+Gemeinsame Felddefinitionen für Referenzprofile, Profiler-Schema (3.5), Extraktionsschema (1.4) und Scoring (1.2).
 
 ## Profilfelder
 
 | Feld | Typ | Einheit / Werte | Verwendet in |
 |---|---|---|---|
 | `app_typ` | Enum | siehe App-Typen | Discovery-Query, Evaluator |
-| `traffic_normal_min` | Integer | Besucher/Tag | Evaluator (Kontext) |
-| `traffic_normal_max` | Integer | Besucher/Tag | Evaluator (Kontext) |
-| `traffic_peak` | Integer / `null` | Besucher/Tag | Evaluator (Kontext) |
+| `traffic_normal_min` | Integer | Besucher/Tag | Ableitungsregeln (3.2), Evaluator |
+| `traffic_normal_max` | Integer | Besucher/Tag | Ableitungsregeln (3.2), Evaluator |
+| `traffic_peak` | Integer / `null` | Besucher/Tag | Ableitungsregeln (3.2), Evaluator |
 | `budget_chf_monat_max` | Zahl | CHF/Monat, siehe Preis | K.O. |
-| `cpu_vcores_min` | Integer | vCPU | K.O.? (1.2) |
+| `cpu_vcores_min` | Integer | vCPU | Discovery-Query, Evaluator |
 | `ram_gb_min` | Zahl | GB | K.O. |
 | `storage_gb_min` | Zahl | GB | K.O. |
 | `docker_erforderlich` | Boolean | – | K.O. |
 | `ressourcentyp_min` | Enum | `egal`, `vserver`, `dediziert` | K.O. |
 | `verwaltung_min` | Enum | `egal`, `managed` | K.O. |
-| `skalierung_min` | Stufe | 0–2 | Scoring, K.O.? (1.2) |
-| `backup_min` | Stufe | 0–2 | Scoring, K.O.? (1.2) |
-| `support_min` | Stufe | 0–2 | Scoring, K.O.? (1.2) |
+| `skalierung_min` | Stufe | 0–2 | Discovery-Query, Evaluator |
+| `backup_min` | Stufe | 0–2 | Discovery-Query, Evaluator |
+| `support_min` | Stufe | 0–2 | Discovery-Query, Evaluator |
 
 Pflichtfelder: alle. Einzig `traffic_peak` darf `null` sein.
+
+K.O.-Kriterien sind `budget_chf_monat_max`, `ram_gb_min`, `storage_gb_min`, `docker_erforderlich`, `ressourcentyp_min` und `verwaltung_min`. Die übrigen Mindestwerte dokumentieren die Anforderung, fliessen in die Discovery-Query ein und dienen dem Profiling-Evaluator. Im Scoring zählt der Angebotswert, nicht der Profil-Mindestwert.
+
+In Variante B (direkte Eingabe ohne Profiler) dürfen Felder `null` sein. `null` heisst „keine Anforderung" und löst kein K.O. aus.
+
+## Angebotsfelder
+
+Gegenstück zu den Profilfeldern, gleiche Einheiten und Stufen. Jedes Angebot führt zusätzlich `abgeleitete_felder` und `fehlende_felder` (`scoring-spezifikation.md`, Stufe 0).
+
+| Feld | Typ | Einheit / Werte | Verwendet in |
+|---|---|---|---|
+| `anbieter`, `produkt`, `url` | String | – | Ausgabe, Nachvollziehbarkeit |
+| `kategorie` | Enum | siehe Angebotskategorien | Kategorie-Defaults, Evaluator |
+| `preis_chf_monat` | Zahl | CHF/Monat, effektiv | K.O., Scoring (0.30) |
+| `cpu_vcores` | Integer | vCPU | Scoring (0.15) |
+| `ram_gb` | Zahl | GB | K.O., Scoring (0.15) |
+| `storage_gb` | Zahl | GB | K.O. |
+| `bandbreite_mbit` | Zahl | Mbit/s | Scoring (0.10) |
+| `skalierung` | Stufe | 0–2 | Scoring (0.15) |
+| `backup` | Stufe | 0–2 | Scoring (0.10) |
+| `support` | Stufe | 0–2 | Scoring (0.05) |
+| `docker_support` | Boolean | – | K.O. |
+| `ressourcentyp` | Enum | `shared`, `vserver`, `dediziert` | K.O. |
+| `verwaltung` | Enum | `managed`, `selbst` | K.O. |
+
+Rohfelder für die Preisberechnung (`monatspreis_regulaer`, `waehrung`, `setup_gebuehr`, `abrechnungsintervall`, `vertragslaufzeit_monate`): Extraktionsschema (1.4), Umrechnung in `scoring-spezifikation.md`.
 
 ## App-Typen
 
@@ -89,15 +115,15 @@ Profil `managed` schliesst Angebote mit `selbst` aus. Profil `egal` akzeptiert a
 
 ## Preis
 
-`budget_chf_monat_max` = maximaler Monatspreis in CHF inkl. MwSt., regulärer Preis (kein Aktionspreis). Umrechnung Fremdwährung und Vertragslaufzeit: Scoring-Spezifikation (1.2).
+`budget_chf_monat_max` = maximaler Monatspreis in CHF, regulärer Preis (kein Aktionspreis). Preise werden so übernommen, wie der Anbieter sie ausweist. Setup-Gebühr, Fremdwährung und Vertragslaufzeit: `scoring-spezifikation.md`, Stufe 0.
 
 ## Vergleichsregeln (Evaluatoren)
 
-**Profiling-Korrektheit** — generiertes Profil vs. Referenzprofil:
+**Profiling-Korrektheit**, generiertes Profil gegen Referenzprofil:
 - Enums, Stufen, Booleans, Budget, CPU, RAM, Storage: exakt
 - Traffic: ±10 %, `null` muss `null` sein
 
-**Kategorie-Korrektheit** — erfüllt, wenn:
+**Kategorie-Korrektheit** ist erfüllt, wenn:
 - Top-1-Empfehlung in `kategorie_erwartet`
 - kein Angebot aus `kategorien_ausgeschlossen` im Ranking
 
@@ -112,10 +138,4 @@ Profil `managed` schliesst Angebote mit `selbst` aus. Profil `egal` akzeptiert a
 | DDoS-Schutz, Firewall, Monitoring | schwer vergleichbar |
 | Support-Sprache, Nachhaltigkeit | nicht entscheidungsrelevant für die Szenarien |
 
-Inkl. Traffic-Volumen, Setup-Gebühr, Kündigungsfrist: nicht ausgeschlossen, sondern Teil der Preisregeln (1.2).
-
-## Offen für 1.2
-
-- `cpu_vcores_min`, `skalierung_min`, `backup_min`, `support_min` zusätzlich als K.O. oder nur gewichtet?
-- `null` in K.O.-Feldern (Shared-Hoster nennen RAM/vCPU/Docker oft nicht) — ausschliessen oder durchlassen?
-- Preisregeln: Fremdwährung, MwSt., Aktionspreis, Vertragslaufzeit
+Setup-Gebühr und Inklusiv-Traffic sind nicht ausgeschlossen, sondern in den Preisregeln geregelt (`scoring-spezifikation.md`, Stufe 0). Die Vertragslaufzeit wird extrahiert und ausgewiesen, fliesst aber weder in den Preis noch in den Score ein.
