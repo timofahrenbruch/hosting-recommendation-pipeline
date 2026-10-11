@@ -12,7 +12,7 @@ Reihenfolge wichtig: Scoring bestimmt Schema, nicht umgekehrt.
 - [x] 1.1 Referenzprofile + Erwartungswerte, alle 3 Szenarien → `docs/anforderungskatalog.md`, `docs/szenarien/szenario-{1,2,3}.md`
 - [x] 1.2 Scoring-Spezifikation (K.O., Gewichte, Normalisierung, fehlende Werte) → `docs/scoring-spezifikation.md`
 - [x] 1.3 Scoring-Engine als Python-Modul, unit-getestet → `scoring/engine.py`, `scoring/config.json`, `tests/test_scoring.py`, `tests/fixtures/angebote.json`. Fixture-Werte vorläufig, Abgleich in 1.5
-- [ ] 1.4 Extraktionsschema ableiten, Fixtures per Test gegen das Schema validieren → `scraping/extraction_schema.json`
+- [x] 1.4 Extraktionsschema ableiten, Fixtures per Test gegen das Schema validieren → `scraping/extraction_schema.json`, `tests/test_extraktionsschema.py`
 - [ ] 1.5 Anbieterliste (10 Anbieter) → `scraping/provider_list.yaml`. Dabei Fixtures mit den echten Produktseiten abgleichen und STRATO, All-Inkl ergänzen
 - [ ] 1.6 Evaluator-Logik Kategorie-Vergleich → `evaluation/evaluators/`
 - [ ] 1.7 1–2 Kontrollszenarien definieren, nicht für Kalibrierung verwenden (erst in Phase 4 laufen lassen) → `docs/szenarien/kontrollszenario-{1,2}.md`
@@ -48,7 +48,7 @@ Vorbereitung Profiler (fachliche Fragen, technische Ableitung per Regeln):
 
 - [ ] 3.9 Profiler real, Szenario 1 — Ziel: Funktionsprofil = Referenz, abgeleitetes Profil = Referenzprofil
 - [ ] 3.10 Discovery real, Szenario 1 — Ziel: richtige Anbieterseiten
-- [ ] 3.11 Extraktion real, Szenario 1 — Ziel: fehlende Felder = `null`, nie geschätzt. Echte Ausgabe mit den Fixtures abgleichen (Felder, Einheiten, Werte), Abweichungen in Schema, Stufe 0 oder Fixtures nachziehen
+- [ ] 3.11 Extraktion real, Szenario 1 — Ziel: fehlende Felder = `null`, nie geschätzt. Ausgabe gegen das Extraktionsschema validieren. Echte Ausgabe mit den Fixtures abgleichen (Felder, Einheiten, Werte), Abweichungen in Schema, Stufe 0 oder Fixtures nachziehen
 - [ ] 3.12 Matching-Check mit echten Daten, Szenario 1 — Ziel: Szenario 1 komplett real
 - [ ] 3.13 Szenario 2 (Scope-Entscheid muss stehen) — Ziel: K.O. schliesst Shared aus, Empfehlung = VPS/Cloud
 - [ ] 3.14 Szenario 3 — Ziel: Empfehlung zwischen Extremen aus 1/2

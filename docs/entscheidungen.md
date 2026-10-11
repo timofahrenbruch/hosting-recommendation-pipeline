@@ -49,6 +49,18 @@ Kurznotizen pro Arbeitsschritt. Nummern verweisen auf `PLAN.md`.
 - Kubernetes-Cluster zählen zu `cloud` (Container-Plattform). Ausgeschlossen bleiben PaaS und Serverless.
 - Tests: `pytest` in lokaler `.venv`, Befehl im README.
 
+## 1.4 Extraktionsschema
+
+- `scraping/extraction_schema.json`, JSON Schema 2020-12. Abgeleitet aus den Feldern, die die Engine liest.
+- Zwei Ebenen: `paket` liefert die Extraktion, `angebot` ist die Eingabe der Engine (Paket plus `anbieter` und `url` aus der Pipeline). Die Extraktion bekommt so keine Felder, die sie nicht von der Seite lesen kann.
+- Eine Seite liefert eine Liste von Paketen, weil Produktseiten meist mehrere Pakete zeigen.
+- Alle Felder Pflicht, Wert darf `null` sein. Fehlende Werte sind damit explizit leer, wie im Proposal verlangt.
+- Die Regeln für das LLM stehen in den `description`-Feldern: Einheiten, Stufen 0–2, Kategorien, `null` statt schätzen, keine Aktionspreise. Das Schema ist damit zugleich Prompt-Grundlage.
+- Docker, Ressourcentyp und Verwaltung nur bei ausdrücklicher Angabe, sonst `null`. Dann greifen die Kategorie-Defaults der Engine.
+- Das LLM rechnet Einheiten (MB → GB) und reine Jahrespreise (÷ 12) selbst um. Ob das zuverlässig klappt, prüft 3.11.
+- Ob SmartScraperGraph das JSON Schema direkt nutzt oder ein Pydantic-Modell braucht, klärt 3.11.
+- Tests: Schema gültig, alle Fixtures entsprechen ihm, Engine-Felder sind im Schema enthalten. Validierung mit `jsonschema`.
+
 ## Übergreifend
 
 ### Profiler

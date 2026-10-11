@@ -6,7 +6,7 @@ BSc thesis project (BFH, Wirtschaftsinformatik) building a Langflow-based multi-
 
 Phase 1 (Konzeption): reference profiles, requirements catalogue, scoring specification and scoring engine are in place.
 
-Run the tests: `python3 -m venv .venv && .venv/bin/pip install pytest && .venv/bin/pytest`
+Run the tests: `python3 -m venv .venv && .venv/bin/pip install pytest jsonschema && .venv/bin/pytest`
 
 - Working plan: [`PLAN.md`](./PLAN.md)
 - Decisions: [`docs/entscheidungen.md`](./docs/entscheidungen.md)

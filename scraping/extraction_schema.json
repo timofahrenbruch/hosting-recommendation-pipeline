@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "extraction_schema",
+  "title": "Extraktion einer Angebotsseite",
+  "description": "Alle Hosting-Pakete einer Seite, je Paket ein Eintrag. Nur Werte übernehmen, die auf der Seite stehen. Fehlt ein Wert oder ist er unklar, null setzen, nie schätzen. Reguläre Preise, keine Aktions- oder Einführungspreise. Felder und Stufen: docs/anforderungskatalog.md.",
+  "type": "object",
+  "required": ["angebote"],
+  "properties": {
+    "angebote": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/paket", "unevaluatedProperties": false }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "paket": {
+      "description": "Felder, die die Extraktion aus der Seite liest.",
+      "type": "object",
+      "required": [
+        "produkt", "kategorie",
+        "monatspreis_regulaer", "waehrung", "setup_gebuehr", "abrechnungsintervall", "vertragslaufzeit_monate",
+        "cpu_vcores", "ram_gb", "storage_gb", "bandbreite_mbit",
+        "skalierung", "backup", "support",
+        "docker_support", "ressourcentyp", "verwaltung"
+      ],
+      "properties": {
+        "produkt": {
+          "type": "string",
+          "description": "Name des Pakets, wie auf der Seite."
+        },
+        "kategorie": {
+          "enum": ["shared", "managed", "vps", "cloud", "dedicated", null],
+          "description": "shared: Webhosting-Paket mit geteilten Ressourcen. managed: verwaltetes Hosting, z. B. Managed WordPress. vps: virtueller Server, selbst administriert. cloud: skalierbare Instanzen oder Container-Plattform (z. B. Kubernetes). dedicated: physischer Server exklusiv."
+        },
+        "monatspreis_regulaer": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Regulärer Preis pro Monat. Steht nur ein Jahrespreis da, durch 12 teilen."
+        },
+        "waehrung": {
+          "enum": ["CHF", "EUR", "USD", null],
+          "description": "Währung des Preises."
+        },
+        "setup_gebuehr": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Einmalige Einrichtungsgebühr. 0, wenn die Seite keine nennt oder sie ausdrücklich entfällt."
+        },
+        "abrechnungsintervall": {
+          "enum": ["monatlich", "jaehrlich", null],
+          "description": "Wie oft abgerechnet wird. Nur zur Information, beeinflusst den Preis nicht."
+        },
+        "vertragslaufzeit_monate": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Mindestlaufzeit in Monaten. 1 bei monatlich kündbar."
+        },
+        "cpu_vcores": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Anzahl vCPU bzw. Kerne. Bei mehreren Knoten die Summe."
+        },
+        "ram_gb": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Arbeitsspeicher in GB (512 MB = 0.512 GB). Bei mehreren Knoten die Summe."
+        },
+        "storage_gb": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Speicherplatz in GB (1 TB = 1000 GB). Bei mehreren Knoten die Summe. Unlimitiert: null."
+        },
+        "bandbreite_mbit": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Anbindung in Mbit/s (1 Gbit/s = 1000). Nur Geschwindigkeit, kein Datenvolumen. Unlimitiert: null."
+        },
+        "skalierung": {
+          "enum": [0, 1, 2, null],
+          "description": "0: keine Skalierung möglich. 1: vertikal upgradebar, Paketwechsel ohne Migration. 2: horizontal oder Auto-Scaling."
+        },
+        "backup": {
+          "enum": [0, 1, 2, null],
+          "description": "Im Preis enthalten. 0: kein oder nur manuelles Backup. 1: automatisch, mindestens wöchentlich. 2: automatisch, täglich."
+        },
+        "support": {
+          "enum": [0, 1, 2, null],
+          "description": "0: Ticket oder E-Mail ohne Reaktionszusage. 1: priorisiert oder Telefon zu Geschäftszeiten. 2: SLA mit garantierter Reaktionszeit oder Verfügbarkeit, oder 24/7."
+        },
+        "docker_support": {
+          "type": ["boolean", "null"],
+          "description": "Nur setzen, wenn die Seite Docker oder Container ausdrücklich nennt oder ausschliesst. Sonst null."
+        },
+        "ressourcentyp": {
+          "enum": ["shared", "vserver", "dediziert", null],
+          "description": "Nur setzen, wenn die Seite es ausdrücklich nennt. shared: geteilte Ressourcen. vserver: virtuelle Maschine mit zugesicherten Ressourcen. dediziert: physischer Server exklusiv. Sonst null."
+        },
+        "verwaltung": {
+          "enum": ["managed", "selbst", null],
+          "description": "Nur setzen, wenn die Seite es ausdrücklich nennt. managed: Anbieter betreibt Betriebssystem, Updates, Sicherheit. selbst: Nutzer administriert den Server. Sonst null."
+        }
+      }
+    },
+    "angebot": {
+      "description": "Eingabe der Scoring-Engine: ein Paket plus die Felder, die die Pipeline aus Discovery und Anbieterliste ergänzt.",
+      "$ref": "#/$defs/paket",
+      "required": ["anbieter", "url"],
+      "properties": {
+        "anbieter": { "type": "string", "description": "Anbietername aus der Anbieterliste." },
+        "url": { "type": ["string", "null"], "description": "Quellseite aus Discovery." }
+      },
+      "unevaluatedProperties": false
+    }
+  }
+}

@@ -93,6 +93,8 @@ Gegenst체ck zu den Profilfeldern, gleiche Einheiten und Stufen. Jedes Angebot f�
 
 Rohfelder f체r die Preisberechnung (`monatspreis_regulaer`, `waehrung`, `setup_gebuehr`, `abrechnungsintervall`, `vertragslaufzeit_monate`): Extraktionsschema (1.4), Umrechnung in `scoring-spezifikation.md`.
 
+Herkunft der Felder: `anbieter` und `url` erg채nzt die Pipeline aus Anbieterliste und Discovery. `preis_chf_monat`, `abgeleitete_felder` und `fehlende_felder` berechnet die Engine. Alle 체brigen liefert die Extraktion gem채ss `scraping/extraction_schema.json`.
+
 ## App-Typen
 
 | Wert | Bedeutung |

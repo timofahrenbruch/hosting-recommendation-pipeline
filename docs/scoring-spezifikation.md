@@ -200,7 +200,7 @@ Unit-Tests der Engine, Umsetzung in 1.3 (`tests/test_scoring.py`, Ausführung: `
 | Metrik (Stufe 3) | `anteil_unvollstaendig` = Anteil der Kandidaten mit Flag `unvollstaendige_datenbasis` |
 | Basisszenarien | Referenzprofile S1–S3 gegen 11 Fixture-Angebote über alle Kategorien: Top-1 in `kategorie_erwartet`, keine Kategorie aus `kategorien_ausgeschlossen` im Ranking |
 
-**Auswahl der Tests.** Jede Regel dieser Spezifikation wird genau einmal geprüft, Stufe für Stufe: Preisregel, jede Kategorie, jedes K.O.-Kriterium, Profil- und Angebotswerte `null`, gleiche Werte, Tie-Break, leeres Ergebnis, Metrik. Dazu kommen die beiden Referenzen, die das Proposal selbst liefert: das Rechenbeispiel und die Erwartungswerte der drei Szenarien. Nicht geprüft werden Rundung (reine Ausgabeformatierung) und ungültige Eingaben, die die Schema-Validierung abfängt (1.4).
+**Auswahl der Tests.** Jede Regel dieser Spezifikation wird genau einmal geprüft, Stufe für Stufe: Preisregel, jede Kategorie, jedes K.O.-Kriterium, Profil- und Angebotswerte `null`, gleiche Werte, Tie-Break, leeres Ergebnis, Metrik. Dazu kommen die beiden Referenzen, die das Proposal selbst liefert: das Rechenbeispiel und die Erwartungswerte der drei Szenarien. Nicht geprüft werden Rundung (reine Ausgabeformatierung) und ungültige Eingaben. Die gültigen Werte legt das Extraktionsschema fest (1.4), die Extraktion prüft ihre Ausgabe dagegen (3.11).
 
 **Auswahl der Fixtures.** Das Set ist so zusammengestellt, dass die Szenario-Tests die Regeln mit realistischen Angeboten durchlaufen:
 
