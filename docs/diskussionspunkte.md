@@ -9,6 +9,7 @@ Bekannte Grenzen und bewusste Vereinfachungen, gesammelt während der Konzeption
 | Lückenhafte Angebote im Vorteil | Fehlende Werte werden ausgeklammert und ihr Gewicht umverteilt, meist auf den Preis. Wer nichts publiziert, wird nicht bestraft. `anteil_unvollstaendig` macht es sichtbar. |
 | Scores sind relativ | Min-Max normalisiert innerhalb der Kandidatenmenge. Der A/B-Vergleich darf nur Kategorie, Rang und Ausschlussgründe verwenden, keine Score-Zahlen. |
 | Ein Gewichtsprofil für alle App-Typen | Das Proposal lässt eigene Profile je App-Typ offen. Verzicht, damit Unterschiede zwischen zwei Empfehlungen eindeutig dem Anforderungsprofil zuzuordnen sind. |
+| Nur vier App-Typen | Reine Backends/APIs, ML, Games oder Streaming haben andere Kriterien und Prioritäten (z. B. Netzwerk, GPU, Egress). Ein Gewichtsprofil passt nicht für alle. Ausblick: eigenes Scoring-Modell je Typ, dazu Ableitungsregeln und Referenzprofil. |
 | Preisvergleich ist grob | Euro-Beträge gehen 1:1 als Franken ein, Brutto- und Nettopreise werden nicht vereinheitlicht. Zusammen bis zu einem Fünftel Abweichung, bei 0.30 Gewicht auf dem Preis. Dafür ohne Kursstichtag und Steuersätze, die bei der Abgabe veraltet wären. |
 | Vertragslaufzeit ohne Wirkung | Wird extrahiert und ausgewiesen, fliesst aber nicht in Preis oder Score ein. Ein Angebot mit 12 Monaten Bindung steht gleich da wie ein monatlich kündbares. |
 | Standort und Datenschutz ausgeschlossen | Alle 10 Anbieter haben CH/EU-Rechenzentren, also kaum Filterwirkung. Für einen erweiterten Anbieter-Scope wäre es ein Kriterium. |

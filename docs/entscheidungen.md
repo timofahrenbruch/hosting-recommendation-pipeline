@@ -12,6 +12,8 @@ Kurznotizen pro Arbeitsschritt. Nummern verweisen auf `PLAN.md`.
 
 - Developer-VPS und Cloud zählen dazu, volle 10er-Liste.
 - Sonst hätte Szenario 2 kaum Kandidaten. Von den 6 klassischen Hostern deckt nur Infomaniak VPS/Cloud ab.
+- Abdeckung und Abgrenzung (Anbieter, Hosting-Typen, App-Typen) im Anforderungskatalog festgehalten. Empfehlung gilt nur innerhalb der 10 Anbieter und der modellierten Kategorien.
+- Weitere App-Typen entfallen: andere Kriterien und Prioritäten bräuchten eigene Scoring-Modelle. Ausblick in `docs/diskussionspunkte.md`.
 
 ## 1.1 Referenzprofile und Anforderungskatalog
 

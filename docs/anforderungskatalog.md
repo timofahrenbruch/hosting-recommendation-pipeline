@@ -2,6 +2,50 @@
 
 Gemeinsame Felddefinitionen für Referenzprofile, Profiler-Schema (3.5), Extraktionsschema (1.4) und Scoring (1.2).
 
+## Abdeckung und Abgrenzung
+
+Die Pipeline empfiehlt das beste Angebot **innerhalb** der festen Anbieterliste und der unten genannten Kategorien. Sie empfiehlt nicht das beste Angebot am Markt. Für eine konkrete Anwendung kann ein Angebot ausserhalb dieser Abdeckung besser passen. Die Pipeline erkennt das nicht.
+
+**Anbieter** (Proposal Kap. 4, Liste in `scraping/provider_list.yaml`, PLAN 1.5)
+
+| Anbieterkategorie | Anbieter | Abdeckung |
+|---|---|---|
+| Schweizer Hosting | Hostpoint, Infomaniak, cyon | ✔ |
+| DACH Hosting | IONOS, STRATO, All-Inkl | ✔ |
+| Developer-VPS | Hetzner, netcup, Contabo | ✔ (Scope-Entscheid 0.2) |
+| Developer-Cloud | DigitalOcean | ✔ (Scope-Entscheid 0.2) |
+| Hyperscaler | AWS, Azure, Google Cloud | ✘ laut Proposal ausgeschlossen |
+| weitere Anbieter | alle ausserhalb der 10 | ✘ kein offenes Web, keine Discovery neuer Anbieter |
+
+**Hosting-Typen** (`kategorie`, siehe Angebotskategorien)
+
+| Typ | Abdeckung | Anmerkung |
+|---|---|---|
+| Shared Hosting | ✔ | |
+| Managed Hosting (inkl. Managed WordPress) | ✔ | |
+| VPS / vServer | ✔ | nur unverwaltet |
+| Developer-Cloud (Instanzen, Container) | ✔ | nur Developer-Cloud, keine Hyperscaler |
+| Dedicated Server | ✔ im Modell | Angebote nur, soweit die 10 Anbieter sie führen |
+| Managed VPS / Managed Cloud | ✘ | `vps` und `cloud` sind fest `selbst`, Verwaltung ist binär |
+| PaaS, Serverless, Managed Kubernetes | ✘ | nicht modelliert, Skalierung nur als Stufe 0–2 |
+| Colocation, Reseller-Hosting | ✘ | nicht modelliert |
+| Domain-, E-Mail- oder Website-Baukasten-Produkte | ✘ | kein Hosting im Sinn des Profils |
+
+**Anwendungstypen** (`app_typ`)
+
+| Abdeckung | Typen |
+|---|---|
+| ✔ | `website_cms`, `webshop`, `portal_plattform`, `saas_webapp` |
+| ✘ | reine Backends und APIs ohne Weboberfläche, Mobile-Backends, Datenverarbeitung und ML, Games, Streaming, Dateispeicher und CDN-lastige Dienste |
+
+Grund: ein Scoring-Modell mit festen Gewichten für alle Typen. Andere Typen hätten andere Kriterien und Prioritäten und bräuchten ein eigenes Modell. Ein nicht abgedecktes Profil kann ein Nutzer zwar eingeben, die Passung der Empfehlung ist dann nicht evaluiert.
+
+**Evaluation**
+
+- Drei Referenzszenarien (Shared-Website, containerisiertes B2B-SaaS, skalierbare Plattform) plus ein bis zwei Kontrollszenarien.
+- Keine Aussage über andere Profile, andere Regionen oder den Gesamtmarkt.
+- Weitere bewusste Auslassungen (Standort, Zusatzdienste, Tech-Stack): Abschnitt Bewusst ausgeschlossen.
+
 ## Profilfelder
 
 | Feld | Typ | Einheit / Werte | Verwendet in |
@@ -110,7 +154,7 @@ Profil `managed` schliesst Angebote mit `selbst` aus. Profil `egal` akzeptiert a
 | `shared` | Shared Hosting / Webhosting-Pakete |
 | `managed` | verwaltetes Hosting, inkl. Managed WordPress |
 | `vps` | virtueller Server, selbst administriert |
-| `cloud` | skalierbare Instanzen / Container-Plattform |
+| `cloud` | skalierbare Instanzen / Container-Plattform (Developer-Cloud, keine Hyperscaler) |
 | `dedicated` | dedizierter physischer Server |
 
 ## Preis
