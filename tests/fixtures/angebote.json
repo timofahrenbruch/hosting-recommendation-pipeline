@@ -1,0 +1,82 @@
+{
+  "hinweis": "Richtwerte, angelehnt an typische Pakete der Anbieter. Vor Abschluss von 2.1 mit den Anbieterseiten abgleichen. Felder mit null fehlen absichtlich (Kategorie-Defaults, fehlende Werte).",
+  "angebote": [
+    {
+      "anbieter": "Hostpoint", "produkt": "Shared klein", "url": null, "kategorie": "shared",
+      "monatspreis_regulaer": 9.90, "waehrung": "CHF", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 12,
+      "cpu_vcores": null, "ram_gb": null, "storage_gb": 50, "bandbreite_mbit": null,
+      "skalierung": 1, "backup": 2, "support": 1,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "cyon", "produkt": "Shared mittel", "url": null, "kategorie": "shared",
+      "monatspreis_regulaer": 19.00, "waehrung": "CHF", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 12,
+      "cpu_vcores": null, "ram_gb": null, "storage_gb": 100, "bandbreite_mbit": null,
+      "skalierung": 1, "backup": 2, "support": 1,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "Infomaniak", "produkt": "Managed WordPress", "url": null, "kategorie": "managed",
+      "monatspreis_regulaer": 12.00, "waehrung": "CHF", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 12,
+      "cpu_vcores": null, "ram_gb": null, "storage_gb": 50, "bandbreite_mbit": null,
+      "skalierung": 1, "backup": 2, "support": 1,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "Hetzner", "produkt": "VPS 2 vCPU / 4 GB", "url": null, "kategorie": "vps",
+      "monatspreis_regulaer": 4.59, "waehrung": "EUR", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 1,
+      "cpu_vcores": 2, "ram_gb": 4, "storage_gb": 40, "bandbreite_mbit": 1000,
+      "skalierung": 1, "backup": 0, "support": 0,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "netcup", "produkt": "VPS 8 vCPU / 16 GB", "url": null, "kategorie": "vps",
+      "monatspreis_regulaer": 15.00, "waehrung": "EUR", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 1,
+      "cpu_vcores": 8, "ram_gb": 16, "storage_gb": 512, "bandbreite_mbit": 2500,
+      "skalierung": 1, "backup": 0, "support": 0,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "Contabo", "produkt": "VPS 6 vCPU / 12 GB", "url": null, "kategorie": "vps",
+      "monatspreis_regulaer": 7.00, "waehrung": "EUR", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 1,
+      "cpu_vcores": 6, "ram_gb": 12, "storage_gb": 200, "bandbreite_mbit": 600,
+      "skalierung": 1, "backup": 0, "support": 0,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "Infomaniak", "produkt": "VPS 4 vCPU / 8 GB", "url": null, "kategorie": "vps",
+      "monatspreis_regulaer": 25.00, "waehrung": "CHF", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 1,
+      "cpu_vcores": 4, "ram_gb": 8, "storage_gb": 160, "bandbreite_mbit": null,
+      "skalierung": 1, "backup": null, "support": null,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "DigitalOcean", "produkt": "Droplet 2 vCPU / 4 GB", "url": null, "kategorie": "cloud",
+      "monatspreis_regulaer": 24.00, "waehrung": "USD", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 1,
+      "cpu_vcores": 2, "ram_gb": 4, "storage_gb": 80, "bandbreite_mbit": null,
+      "skalierung": 1, "backup": 0, "support": 0,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "DigitalOcean", "produkt": "Kubernetes 3 × 4 vCPU / 8 GB", "url": null, "kategorie": "cloud",
+      "monatspreis_regulaer": 144.00, "waehrung": "USD", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 1,
+      "cpu_vcores": 12, "ram_gb": 24, "storage_gb": 480, "bandbreite_mbit": null,
+      "skalierung": 2, "backup": 0, "support": 1,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "Hetzner", "produkt": "Dedicated 8 Kerne / 64 GB", "url": null, "kategorie": "dedicated",
+      "monatspreis_regulaer": 50.00, "waehrung": "EUR", "setup_gebuehr": 39.00, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 1,
+      "cpu_vcores": 16, "ram_gb": 64, "storage_gb": 1000, "bandbreite_mbit": 1000,
+      "skalierung": 0, "backup": 0, "support": 0,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    },
+    {
+      "anbieter": "IONOS", "produkt": "Dedicated 8 Kerne / 32 GB", "url": null, "kategorie": "dedicated",
+      "monatspreis_regulaer": 100.00, "waehrung": "EUR", "setup_gebuehr": 0, "abrechnungsintervall": "monatlich", "vertragslaufzeit_monate": 12,
+      "cpu_vcores": 8, "ram_gb": 32, "storage_gb": 960, "bandbreite_mbit": 1000,
+      "skalierung": 0, "backup": 1, "support": 1,
+      "docker_support": null, "ressourcentyp": null, "verwaltung": null
+    }
+  ]
+}

@@ -24,10 +24,10 @@ Die Pipeline empfiehlt das beste Angebot **innerhalb** der festen Anbieterliste 
 | Shared Hosting | ✔ | |
 | Managed Hosting (inkl. Managed WordPress) | ✔ | |
 | VPS / vServer | ✔ | nur unverwaltet |
-| Developer-Cloud (Instanzen, Container) | ✔ | nur Developer-Cloud, keine Hyperscaler |
+| Developer-Cloud (Instanzen, Container-Plattformen wie Kubernetes) | ✔ | nur Developer-Cloud, keine Hyperscaler |
 | Dedicated Server | ✔ im Modell | Angebote nur, soweit die 10 Anbieter sie führen |
 | Managed VPS / Managed Cloud | ✘ | `vps` und `cloud` sind fest `selbst`, Verwaltung ist binär |
-| PaaS, Serverless, Managed Kubernetes | ✘ | nicht modelliert, Skalierung nur als Stufe 0–2 |
+| PaaS, Serverless | ✘ | nicht modelliert, kein Server- oder Instanzangebot |
 | Colocation, Reseller-Hosting | ✘ | nicht modelliert |
 | Domain-, E-Mail- oder Website-Baukasten-Produkte | ✘ | kein Hosting im Sinn des Profils |
 
@@ -61,13 +61,13 @@ Grund: ein Scoring-Modell mit festen Gewichten für alle Typen. Andere Typen hä
 | `docker_erforderlich` | Boolean | – | K.O. |
 | `ressourcentyp_min` | Enum | `egal`, `vserver`, `dediziert` | K.O. |
 | `verwaltung_min` | Enum | `egal`, `managed` | K.O. |
-| `skalierung_min` | Stufe | 0–2 | Discovery-Query, Evaluator |
+| `skalierung_min` | Stufe | 0–2 | K.O. |
 | `backup_min` | Stufe | 0–2 | Discovery-Query, Evaluator |
 | `support_min` | Stufe | 0–2 | Discovery-Query, Evaluator |
 
 Pflichtfelder: alle. Einzig `traffic_peak` darf `null` sein.
 
-K.O.-Kriterien sind `budget_chf_monat_max`, `ram_gb_min`, `storage_gb_min`, `docker_erforderlich`, `ressourcentyp_min` und `verwaltung_min`. Die übrigen Mindestwerte dokumentieren die Anforderung, fliessen in die Discovery-Query ein und dienen dem Profiling-Evaluator. Im Scoring zählt der Angebotswert, nicht der Profil-Mindestwert.
+K.O.-Kriterien sind `budget_chf_monat_max`, `ram_gb_min`, `storage_gb_min`, `docker_erforderlich`, `ressourcentyp_min`, `verwaltung_min` und `skalierung_min`. Die übrigen Mindestwerte dokumentieren die Anforderung, fliessen in die Discovery-Query ein und dienen dem Profiling-Evaluator. Im Scoring zählt der Angebotswert, nicht der Profil-Mindestwert.
 
 In Variante B (direkte Eingabe ohne Profiler) dürfen Felder `null` sein. `null` heisst „keine Anforderung" und löst kein K.O. aus.
 
@@ -84,7 +84,7 @@ Gegenstück zu den Profilfeldern, gleiche Einheiten und Stufen. Jedes Angebot f�
 | `ram_gb` | Zahl | GB | K.O., Scoring (0.15) |
 | `storage_gb` | Zahl | GB | K.O. |
 | `bandbreite_mbit` | Zahl | Mbit/s | Scoring (0.10) |
-| `skalierung` | Stufe | 0–2 | Scoring (0.15) |
+| `skalierung` | Stufe | 0–2 | K.O., Scoring (0.15) |
 | `backup` | Stufe | 0–2 | Scoring (0.10) |
 | `support` | Stufe | 0–2 | Scoring (0.05) |
 | `docker_support` | Boolean | – | K.O. |

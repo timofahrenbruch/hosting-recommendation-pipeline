@@ -20,7 +20,7 @@ Kurznotizen pro Arbeitsschritt. Nummern verweisen auf `PLAN.md`.
 - Katalog in `docs/anforderungskatalog.md`. Referenzprofile aus der Szenarientabelle des Proposals (Kap. 4.4).
 - Ranges auf Mindestwerte reduziert, nur die zählen für den K.O.-Filter.
 - K.O.-Felder laut Proposal: Budget, RAM, Speicherplatz, Docker, Ressourcentyp. Dazu `verwaltung_min`, sonst gewinnt in S1 ein billiger unverwalteter VPS.
-- CPU, Skalierung, Backup und Support nur im Scoring, nicht als K.O.
+- CPU, Backup und Support nur im Scoring, nicht als K.O. Skalierung seit 1.2 auch K.O.
 - Pro Szenario ein simulierter Nutzer mit festen Antworten, sonst ist die Profiling-Evaluation nicht reproduzierbar.
 - S2 und S3 haben denselben Erwartungswert, so steht es im Proposal.
 - Nicht im Profil: Bandbreite, Standort, Tech-Stack.
@@ -28,11 +28,26 @@ Kurznotizen pro Arbeitsschritt. Nummern verweisen auf `PLAN.md`.
 ## 1.2 Scoring-Spezifikation
 
 - `docs/scoring-spezifikation.md`, folgt Kap. 4.5 des Proposals.
-- Drei Ergänzungen zum Proposal, dort begründet: `verwaltung_min` als K.O., Kategorie-Defaults, Preisregeln.
+- Vier Ergänzungen zum Proposal, dort begründet: `verwaltung_min` und `skalierung_min` als K.O., Kategorie-Defaults, Preisregeln.
+- `skalierung_min` als K.O. nachträglich, als DSR-Iteration. Auslöser: In der Handrechnung mit den Fixtures gewinnt in S2 ein Dedicated-Server ohne Skalierung.
+- Begründet ist die Regel mit dem Profil, nicht mit den Testdaten: Wer Auto-Scaling als kritisch nennt, stellt eine harte Anforderung. Gleiche Logik wie `verwaltung_min`. Ob die Regel auch ausserhalb der drei Szenarien trägt, prüfen die Kontrollszenarien (1.7).
+- Ausgabe verschlankt: kein `abstand_zum_zweiten`, kein `version`-Block, Tie-Break nur Preis, dann Name.
+- Unit-Tests auf Basisfälle beschränkt: Rechenbeispiel, je K.O.-Kriterium, je Kategorie, fehlende Werte, Basisszenarien.
 - Keine Wechselkurse und keine MwSt.-Umrechnung. Euro gilt 1:1 als Franken, Preise wie ausgewiesen.
 - Keine Sättigung von CPU und RAM, kein eigenes Gewichtsprofil je App-Typ.
-- Tests auf drei Ebenen, alle ohne Langflow, LLM und Netz lauffähig.
+- Tests ohne Langflow, LLM und Netz lauffähig.
 - Bekannte Ungenauigkeiten: `docs/diskussionspunkte.md`.
+
+## 1.3 Scoring-Engine
+
+- `scoring/engine.py`, eine Funktion je Stufe der Spezifikation. Reines Python, keine Abhängigkeiten.
+- Config als JSON statt YAML, damit kein zusätzliches Paket nötig ist.
+- Extraktion liefert Werte in Katalog-Einheiten und als Monatspreis. Die Engine verteilt nur die Setup-Gebühr und übernimmt Fremdwährungen 1:1.
+- Ausgabe gerundet auf 4 Stellen, Tests vergleichen mit Toleranz 0.001.
+- Ausgeschlossene alphabetisch sortiert, damit das Ergebnis nicht von der Reihenfolge der Discovery abhängt.
+- Fixtures sind Richtwerte, Abgleich mit echten Seiten in 3.11.
+- Kubernetes-Cluster zählen zu `cloud` (Container-Plattform). Ausgeschlossen bleiben PaaS und Serverless.
+- Tests: `pytest` in lokaler `.venv`, Befehl im README.
 
 ## Übergreifend
 

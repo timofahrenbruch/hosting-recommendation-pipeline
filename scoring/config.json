@@ -1,0 +1,18 @@
+{
+  "gewichte": {
+    "preis_chf_monat": 0.30,
+    "cpu_vcores": 0.15,
+    "ram_gb": 0.15,
+    "bandbreite_mbit": 0.10,
+    "skalierung": 0.15,
+    "backup": 0.10,
+    "support": 0.05
+  },
+  "kategorie_defaults": {
+    "shared":    { "docker_support": false, "verwaltung": "managed", "ressourcentyp": "shared" },
+    "managed":   { "docker_support": false, "verwaltung": "managed", "ressourcentyp": "shared" },
+    "vps":       { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "vserver" },
+    "cloud":     { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "vserver" },
+    "dedicated": { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "dediziert" }
+  }
+}

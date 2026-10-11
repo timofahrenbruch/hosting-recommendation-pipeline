@@ -15,6 +15,7 @@ Grundlage für die Matching-Komponente. Folgt dem Proposal, Kap. 4.5 (Scoring-Al
 | Ergänzung | Grund |
 |---|---|
 | K.O.-Kriterium `verwaltung_min` | Ohne dieses Kriterium gewinnt in Szenario 1 ein günstiger unverwalteter VPS. Der Erwartungswert des Proposals (Shared-Hosting für einen Nutzer ohne Admin-Know-how) wäre nicht erreichbar. |
+| K.O.-Kriterium `skalierung_min` | Ohne dieses Kriterium gewinnt in Szenario 2 ein günstiger Dedicated-Server mit viel RAM, obwohl das Profil Auto-Scaling verlangt. Der Erwartungswert des Proposals (skalierbares VPS/Cloud-Angebot) wäre nicht erreichbar. |
 | Kategorie-Defaults in Stufe 0 | Shared-Pakete nennen Docker fast nie. Ohne Default greift der Docker-K.O. nicht und die Szenarien 2 und 3 schliessen Shared nicht aus, wie das Proposal es erwartet. |
 | Preisregeln (Setup-Gebühr, Vergleichsbasis) | Das Proposal vergleicht „Preis CHF/Monat", definiert die Aufbereitung aber nicht. Ohne feste Regel sind die Angebote nicht vergleichbar. |
 
@@ -26,11 +27,11 @@ Alles Übrige entspricht dem Proposal.
 |---|---|
 | `profil` | technisches Profil gemäss Katalog. Felder dürfen `null` sein (Variante B) |
 | `angebote[]` | Angebotsfelder gemäss Katalog |
-| `config` | `version`, `gewichte`, `kategorie_defaults` |
+| `config` | `gewichte`, `kategorie_defaults` (`scoring/config.json`) |
 
 ## Stufe 0 — Aufbereitung
 
-**Einheiten:** GB dezimal (1 GB = 1000 MB), Bandbreite in Mbit/s, Preis in CHF mit 2 Nachkommastellen.
+**Einheiten:** GB dezimal (1 GB = 1000 MB), Bandbreite in Mbit/s, Preis in CHF mit 2 Nachkommastellen. Die Extraktion liefert die Werte bereits in diesen Einheiten, die Engine rechnet sie nicht um.
 
 **Preis** → effektiver Monatspreis:
 
@@ -41,6 +42,9 @@ preis_chf_monat = (setup_gebuehr + 12 × monatspreis_regulaer) / 12   [in CHF]
 - Grundlage ist der veröffentlichte reguläre Monatspreis, keine Aktionspreise.
 - Der Preis wird so übernommen, wie der Anbieter ihn ausweist. Es findet keine Umrechnung zwischen brutto und netto statt.
 - Fremdwährungen werden 1:1 übernommen, ein Preis von 10 EUR gilt als 10 CHF. Es gibt keine Wechselkurse und keinen Kursstichtag.
+- Ein fehlender Preis führt immer zum Ausschluss (Grund `preis_fehlt`), auch ohne Budget im Profil.
+- Die Extraktion liefert den Monatspreis. Jahrespreise rechnet sie vorher um (`abrechnungsintervall`), die Engine kennt nur Monatspreise.
+- „Unlimitiert" (Speicher, Bandbreite) liefert die Extraktion als `null`. Die Engine behandelt es als fehlenden Wert.
 - Die Vertragslaufzeit wird extrahiert und in der Ausgabe mitgeführt, beeinflusst den Preis aber nicht. Gerechnet wird immer mit dem regulären Monatspreis, unabhängig von der Mindestlaufzeit.
 
 **Kategorie-Defaults** gelten nur für Felder, die nach der Extraktion `null` sind:
@@ -51,9 +55,9 @@ preis_chf_monat = (setup_gebuehr + 12 × monatspreis_regulaer) / 12   [in CHF]
 | `vps`, `cloud` | `true` | `selbst` | `vserver` |
 | `dedicated` | `true` | `selbst` | `dediziert` |
 
-Fehlt die Kategorie, wird das Angebot ausgeschlossen (Grund `kategorie_fehlend`). Ohne Kategorie greifen weder die Defaults noch der Kategorie-Evaluator, und das Angebot käme an K.O.-Kriterien vorbei, die für seine Kategorie gelten.
+Fehlt die Kategorie oder ist sie kein gültiger Wert, wird das Angebot ausgeschlossen (Grund `kategorie_fehlend`). Ohne Kategorie greifen weder die Defaults noch der Kategorie-Evaluator, und das Angebot käme an K.O.-Kriterien vorbei, die für seine Kategorie gelten.
 
-**Nachvollziehbarkeit:** Jedes Angebot führt zwei Listen, `abgeleitete_felder` und `fehlende_felder`. So ist sichtbar, welche Werte nicht aus der Extraktion stammen.
+**Nachvollziehbarkeit:** Jedes Angebot führt zwei Listen. `abgeleitete_felder` enthält die per Default gesetzten Felder. `fehlende_felder` enthält die Felder aus K.O.-Filter und Bewertung, die auch nach den Defaults `null` sind. So ist sichtbar, welche Werte nicht aus der Extraktion stammen.
 
 ## Stufe 1 — K.O.-Filter
 
@@ -67,8 +71,9 @@ Ein Angebot wird ausgeschlossen, wenn es eine Mindestanforderung verletzt.
 | Docker | `docker_erforderlich` und nicht `docker_support` | durchlassen |
 | Ressourcentyp | Rang Angebot < Rang Profil (`egal` = kein Rang) | durchlassen |
 | Verwaltung | Profil `managed` und Angebot `selbst` | durchlassen |
+| Skalierung | `skalierung < skalierung_min` | durchlassen |
 
-Ein fehlender Angebotswert führt nur beim Preis zum Ausschluss. Sonst bleibt das Angebot im Rennen und das Feld steht in `fehlende_felder`. Ein `null` im Profil heisst „keine Anforderung" (Variante B) und wird nicht geprüft.
+Ein fehlender Angebotswert führt nur beim Preis zum Ausschluss. Sonst bleibt das Angebot im Rennen und das Feld steht in `fehlende_felder`. Docker, Ressourcentyp und Verwaltung sind nach Stufe 0 nie `null`, weil jede gültige Kategorie einen Default liefert. Fehlen kann der Wert deshalb nur bei RAM, Speicherplatz und Skalierung. Ein `null` im Profil heisst „keine Anforderung" (Variante B) und wird nicht geprüft.
 
 Ausschlüsse werden protokolliert:
 
@@ -90,7 +95,7 @@ Ausschlüsse werden protokolliert:
 | `backup` | Nutzen | 0.10 | höher = besser |
 | `support` | Nutzen | 0.05 | höher = besser |
 
-Speicherplatz, Docker, Verwaltung und Ressourcentyp wirken nur als K.O. und gehen nicht ins Scoring ein.
+Speicherplatz, Docker, Verwaltung und Ressourcentyp wirken nur als K.O. und gehen nicht ins Scoring ein. Preis, RAM und Skalierung wirken in beiden Stufen.
 
 Das Proposal stellt eigene Gewichtsprofile je App-Typ als Möglichkeit in Aussicht. Darauf wird bewusst verzichtet: Die Gewichte sind konfigurierbar, alle Szenarien laufen aber mit demselben Default-Profil. Sonst wäre bei einem Unterschied zwischen zwei Empfehlungen nicht mehr trennbar, ob das Profil oder die Gewichtung ihn verursacht hat.
 
@@ -118,11 +123,11 @@ Das Angebot erhält das Flag `unvollstaendige_datenbasis`.
 Score = Σ (gewicht_i' × norm_i)        über alle Kriterien mit Wert, gerundet auf 4 Stellen
 ```
 
-Intern wird ungerundet gerechnet, gerundet wird nur für die Ausgabe. Die Invariante „Summe der Beiträge = Score" wird auf den ungerundeten Werten mit Toleranz 1e-9 geprüft.
+Intern wird ungerundet gerechnet, gerundet wird nur für die Ausgabe. Die Summe der ausgegebenen Beiträge entspricht dem Score bis auf Rundungsdifferenzen (< 0.001).
 
 ## Stufe 3 — Ranking & Ausgabe
 
-Sortierung absteigend nach Score. Tie-Break: tieferer Preis, dann mehr RAM, dann Anbietername alphabetisch.
+Sortierung absteigend nach Score. Tie-Break: tieferer Preis, dann Anbieter und Produkt alphabetisch. Ausgeschlossene stehen alphabetisch nach Anbieter und Produkt. Das Ergebnis hängt damit nicht von der Reihenfolge ab, in der Discovery die Angebote liefert.
 
 **Flags**
 
@@ -135,15 +140,14 @@ Sortierung absteigend nach Score. Tie-Break: tieferer Preis, dann mehr RAM, dann
 
 ```json
 {
-  "version": { "spezifikation": "1.2", "config": "…" },
   "empfehlung": { "anbieter": "…", "produkt": "…", "kategorie": "vps", "score": 0.8400 },
-  "abstand_zum_zweiten": 0.0412,
   "ranking": [
     {
-      "anbieter": "…", "produkt": "…", "kategorie": "vps", "score": 0.8400,
+      "anbieter": "…", "produkt": "…", "url": "…", "kategorie": "vps", "score": 0.8400,
       "beitraege": {
         "preis_chf_monat": { "wert": 25.00, "norm": 0.6000, "gewicht": 0.30, "beitrag": 0.1800 }
       },
+      "vertragslaufzeit_monate": 12,
       "abgeleitete_felder": [], "fehlende_felder": [], "flags": []
     }
   ],
@@ -152,7 +156,7 @@ Sortierung absteigend nach Score. Tie-Break: tieferer Preis, dann mehr RAM, dann
 }
 ```
 
-Bleibt kein Kandidat übrig: `empfehlung: null`, `ranking: []`, und unter `ausgeschlossen` stehen die Angebote mit den wenigsten Verstössen zuerst.
+Bleibt kein Kandidat übrig: `empfehlung: null`, `ranking: []`, alle Angebote stehen mit ihren Gründen unter `ausgeschlossen`.
 
 ## Grenzen des Verfahrens
 
@@ -161,53 +165,57 @@ Bleibt kein Kandidat übrig: `empfehlung: null`, `ranking: []`, und unter `ausge
 - **WSM ist kompensatorisch.** Eine Schwäche lässt sich durch Stärken ausgleichen. Harte Anforderungen fängt deshalb der K.O.-Filter ab.
 - **Überdimensionierung wird nicht gedämpft.** Ein grosses Angebot innerhalb des Budgets schlägt ein knapp passendes, weil CPU und RAM als Nutzen-Kriterien zählen. Das Proposal nennt Überdimensionierung als Problem, sieht im Scoring aber keine Gegenmassnahme vor. Punkt für die Diskussion.
 - **Unvollständig dokumentierte Angebote sind im Vorteil.** Sie kommen durch den K.O.-Filter und ihr Gewicht wird auf die vorhandenen Kriterien verteilt, meist auf den Preis. `anteil_unvollstaendig` macht den Anteil sichtbar.
-- **Der Preisvergleich ist bewusst grob.** Euro-Beträge gehen 1:1 als Franken ein, und Brutto- wie Nettopreise werden so übernommen, wie der Anbieter sie ausweist. Beides zusammen kann einen Preis um bis zu einem Fünftel verschieben. Der Preis hat mit 0.30 das höchste Gewicht, Rangfolgen innerhalb einer Kategorie sind deshalb mit Vorsicht zu lesen. Dafür braucht die Berechnung weder Kursstichtag noch Steuersätze, die bei der Abgabe veraltet wären.
+- **Der Preisvergleich ist bewusst grob.** Euro- und Dollar-Beträge gehen 1:1 als Franken ein, und Brutto- wie Nettopreise werden so übernommen, wie der Anbieter sie ausweist. Beides zusammen kann einen Preis um einen zweistelligen Prozentsatz verschieben. Der Preis hat mit 0.30 das höchste Gewicht, Rangfolgen innerhalb einer Kategorie sind deshalb mit Vorsicht zu lesen. Dafür braucht die Berechnung weder Kursstichtag noch Steuersätze, die bei der Abgabe veraltet wären.
 - **Traffic-Inklusivvolumen** bleibt unberücksichtigt, Überschreitungskosten fliessen nicht in den Preis ein.
 - **Die Vertragslaufzeit fliesst nicht in den Score ein.** Ein Angebot mit 12 Monaten Mindestlaufzeit wird gleich bewertet wie ein monatlich kündbares. Die Laufzeit steht in der Ausgabe und bleibt damit für den Nutzer sichtbar.
 
-## Tests (Umsetzung in 1.3)
+## Umsetzung
 
-### Ebene 1 — Regeltests
+`scoring/engine.py`, eine Funktion je Stufe:
 
-| # | Stufe | Fall | Erwartung |
-|---|---|---|---|
-| 1 | 0 | Preis in EUR, mit Setup-Gebühr und 12 Monaten Mindestlaufzeit | Betrag 1:1 als CHF, Setup amortisiert, Laufzeit ohne Einfluss |
-| 2 | 0 | Einheiten 512 MB, 1 TB, 1 GiB | in GB dezimal umgerechnet |
-| 3 | 0 | Preis fehlt | Ausschluss |
-| 4 | 0 | Kategorie-Defaults je Kategorie (3 Fälle, parametrisiert) | Werte gemäss Tabelle, Felder in `abgeleitete_felder` |
-| 5 | 0 | Feld wurde extrahiert | Default überschreibt den Wert nicht |
-| 6 | 0 | Angebot ohne Kategorie | Ausschluss, Grund `kategorie_fehlend` |
-| 7 | 1 | Je ein K.O. pro Kriterium (6 Fälle, parametrisiert) | Ausschluss, Grund protokolliert |
-| 8 | 1 | Gleichheit: `ram == min`, `preis == budget` | kein Ausschluss |
-| 9 | 1 | Ressourcentyp in beide Richtungen und `egal` | Profil `dediziert` schliesst `vserver` aus, umgekehrt nicht, `egal` prüft nicht |
-| 10 | 1 | Angebotswert `null` in einem K.O.-Feld | durchlassen, Feld in `fehlende_felder` |
-| 11 | 1 | Profilwert `null` (Variante B) | keine Prüfung, Flag `anforderung_unspezifiziert` |
-| 12 | 2 | Beispielrechnung aus dem Proposal: A (15/4/2/0), B (25/8/4/1), C (40/8/4/1), Gewichte 0.4/0.3/0.2/0.1 | A 0.40, B 0.84, C 0.60 |
-| 13 | 2 | `null` bei einem von drei Angeboten | nimmt an `min` und `max` nicht teil |
-| 14 | 2 | Ein fehlender Wert | Gewicht umverteilt, Flag `unvollstaendige_datenbasis` |
-| 15 | 2 | Mehrere fehlende Werte | Summe der effektiven Gewichte bleibt 1.0 |
-| 16 | 2 | Alle Kriterien eines Angebots fehlen | Score 0, kein Absturz |
-| 17 | 2 | Mehrere Kandidaten, identischer Wert (`max = min`) | `norm = 1` für alle |
-| 18 | 3 | Zwei identische Scores, danach gleicher Preis | Tie-Break deterministisch |
-| 19 | 3 | Nur ein Kandidat | `abstand_zum_zweiten: null` |
-| 20 | 3 | Leere Angebotsliste | `empfehlung: null`, kein Absturz |
-| 21 | 3 | Alle Angebote ausgeschlossen | `empfehlung: null`, alle Gründe protokolliert, wenigste Verstösse zuerst |
-
-### Ebene 2 — Invarianten
-
-Gelten für jede Eingabe. Geprüft werden sie auf allen Fixtures aus Ebene 1 und Ebene 3, nicht auf generierten Eingaben.
-
-| # | Invariante | Deckt auf |
+| Funktion | Stufe | Aufgabe |
 |---|---|---|
-| 22 | Summe der Beiträge = Score | Aufschlüsselung ist der Nachweis für Nachvollziehbarkeit |
-| 23 | Reihenfolge der Eingabeangebote ändert das Ergebnis nicht | versteckte Sortierabhängigkeit |
-| 24 | Zweiter Aufruf liefert identisches Ergebnis | Reinheit, Voraussetzung reproduzierbarer Evaluation |
-| 25 | Score liegt zwischen 0 und 1 | |
+| `lade_config` | – | liest `scoring/config.json`, prüft Gewichtssumme 1.0 |
+| `aufbereiten` | 0 | effektiver Monatspreis, Kategorie-Defaults, `abgeleitete_felder`, `fehlende_felder` |
+| `ausschlussgruende` | 1 | alle K.O.-Verstösse eines Angebots, leer = Kandidat |
+| `bewerten` | 2 | Normalisierung, Umverteilung, Beitrag je Kriterium, Score |
+| `bewerte` | 0–3 | Gesamtablauf mit Ranking, Flags und Metriken, Einstiegspunkt der Matching-Komponente |
 
-### Ebene 3 — Szenario-Tests
+Eingabe und Ausgabe sind JSON-kompatible Dicts. Die Eingabe wird nicht verändert.
 
-Fixture-Set von rund 15 Angeboten über alle 5 Kategorien, Werte an real publizierten Paketen der 10 Anbieter orientiert. Die drei Szenarien werden dagegen gerechnet und gegen `kategorie_erwartet` und `kategorien_ausgeschlossen` geprüft.
+## Tests
 
-Die Fixtures werden fertiggestellt, bevor das erwartete Ergebnis geprüft wird. Sonst bestätigt der Test nur die eigene Erwartung.
+Unit-Tests der Engine, Umsetzung in 1.3 (`tests/test_scoring.py`, Ausführung: `README.md`). Sie stellen sicher, dass ein falsches Ergebnis in den Szenarien nicht aus der Rechenlogik kommt. Die Szenarien selbst werden in LangSmith evaluiert.
 
-Nicht abgedeckt und damit Sache von Phase 3: ob Discovery die richtige Produktseite findet, ob die Extraktion korrekte Werte liefert, ob die Kategorie einer echten Seite richtig erkannt wird.
+| Test | Prüft |
+|---|---|
+| Rechenbeispiel | Beispiel aus dem Proposal ergibt A 0.40, B 0.84, C 0.60. Die Beiträge je Kriterium summieren sich zum Score |
+| Preisregel (Stufe 0) | Setup-Gebühr wird auf 12 Monate verteilt |
+| Kategorie-Defaults (Stufe 0) | `shared`, `managed`, `vps`, `cloud`, `dedicated` erhalten die Werte gemäss Tabelle |
+| K.O. je Kriterium (Stufe 1) | Preis, RAM, Speicher, Docker, Ressourcentyp, Verwaltung, Skalierung: ein Verstoss schliesst aus, Grund wird protokolliert |
+| Profilwert `null` (Stufe 1) | keine Prüfung, Flag `anforderung_unspezifiziert` (Variante B). Vollständiges Profil: kein Flag |
+| Fehlende Werte (Stufe 0–2) | ohne Preis oder Kategorie: Ausschluss. Sonst kein Ausschluss, Gewicht umverteilt, Flag `unvollstaendige_datenbasis` |
+| Gleiche Werte (Stufe 2) | alle Kandidaten mit gleichem Wert erhalten `norm` 1 |
+| Ranking (Stufe 3) | Tie-Break: tieferer Preis, dann Anbieter. Kein Kandidat: `empfehlung` ist `null`, alle Angebote ausgeschlossen |
+| Metrik (Stufe 3) | `anteil_unvollstaendig` = Anteil der Kandidaten mit Flag `unvollstaendige_datenbasis` |
+| Basisszenarien | Referenzprofile S1–S3 gegen 11 Fixture-Angebote über alle Kategorien: Top-1 in `kategorie_erwartet`, keine Kategorie aus `kategorien_ausgeschlossen` im Ranking |
+
+**Auswahl der Tests.** Jede Regel dieser Spezifikation wird genau einmal geprüft, Stufe für Stufe: Preisregel, jede Kategorie, jedes K.O.-Kriterium, Profil- und Angebotswerte `null`, gleiche Werte, Tie-Break, leeres Ergebnis, Metrik. Dazu kommen die beiden Referenzen, die das Proposal selbst liefert: das Rechenbeispiel und die Erwartungswerte der drei Szenarien. Nicht geprüft werden Rundung (reine Ausgabeformatierung) und ungültige Eingaben, die die Schema-Validierung abfängt (1.4).
+
+**Auswahl der Fixtures.** Das Set ist so zusammengestellt, dass die Szenario-Tests die Regeln mit realistischen Angeboten durchlaufen:
+
+| Kriterium | Umsetzung im Set |
+|---|---|
+| alle Kategorien | 2 `shared`, 1 `managed`, 4 `vps`, 2 `cloud`, 2 `dedicated` |
+| Anbieter-Scope | 8 der 10 Anbieter (ohne STRATO, All-Inkl) |
+| Preisspanne | 4.59 bis 144 pro Monat. Das Budget schliesst in S1 Angebote aus, in S2 und S3 liegen alle darunter |
+| Preisregeln | CHF, EUR und USD, ein Angebot mit Setup-Gebühr |
+| fehlende Werte | Shared/Managed ohne CPU, RAM, Bandbreite (wie auf echten Seiten), ein VPS ohne Backup und Support |
+| Kategorie-Defaults | Docker, Verwaltung, Ressourcentyp überall `null`, damit die Defaults greifen |
+| Skalierung | Stufen 0, 1 und 2 vertreten |
+
+In den Szenarien greifen damit alle K.O.-Kriterien ausser Ressourcentyp, den kein Referenzprofil verlangt. Dieser ist nur im Unit-Test abgedeckt.
+
+Die Fixtures (`tests/fixtures/angebote.json`) sind Richtwerte, angelehnt an typische Pakete der 10 Anbieter. Sie wurden fertiggestellt, bevor das Ergebnis geprüft wurde, sonst bestätigt der Test nur die eigene Erwartung. Der Abgleich mit echten Seiten folgt in 3.11.
+
+Aus der ersten Prüfung entstand `skalierung_min` als K.O. (siehe Abweichungen vom Proposal): Ohne diese Regel gewann in S2 ein Dedicated-Server.
