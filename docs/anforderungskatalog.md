@@ -6,11 +6,11 @@ Gemeinsame Felddefinitionen für Referenzprofile, Profiler-Schema (3.5), Extrakt
 
 Die Pipeline empfiehlt das beste Angebot **innerhalb** der festen Anbieterliste und der unten genannten Kategorien. Sie empfiehlt nicht das beste Angebot am Markt. Für eine konkrete Anwendung kann ein Angebot ausserhalb dieser Abdeckung besser passen. Die Pipeline erkennt das nicht.
 
-**Anbieter** (Proposal Kap. 4, Liste in `scraping/provider_list.yaml`, PLAN 1.5)
+**Anbieter** (Proposal Kap. 4, Liste in `scraping/provider_list.json`, PLAN 1.5)
 
 | Anbieterkategorie | Anbieter | Abdeckung |
 |---|---|---|
-| Schweizer Hosting | Hostpoint, Infomaniak, cyon | ✔ |
+| Schweizer Hosting | Hostpoint, Infomaniak, cyon | ✔ (cyon blockiert automatische Abrufe) |
 | DACH Hosting | IONOS, STRATO, All-Inkl | ✔ |
 | Developer-VPS | Hetzner, netcup, Contabo | ✔ (Scope-Entscheid 0.2) |
 | Developer-Cloud | DigitalOcean | ✔ (Scope-Entscheid 0.2) |
@@ -23,11 +23,11 @@ Die Pipeline empfiehlt das beste Angebot **innerhalb** der festen Anbieterliste 
 |---|---|---|
 | Shared Hosting | ✔ | |
 | Managed Hosting (inkl. Managed WordPress) | ✔ | |
-| VPS / vServer | ✔ | nur unverwaltet |
-| Developer-Cloud (Instanzen, Container-Plattformen wie Kubernetes) | ✔ | nur Developer-Cloud, keine Hyperscaler |
-| Dedicated Server | ✔ im Modell | Angebote nur, soweit die 10 Anbieter sie führen |
-| Managed VPS / Managed Cloud | ✘ | `vps` und `cloud` sind fest `selbst`, Verwaltung ist binär |
+| VPS / vServer | ✔ | verwaltet oder selbst administriert |
+| Developer-Cloud mit horizontaler Skalierung (Kubernetes, Auto-Scaling-Instanzen) | ✔ | nur Developer-Cloud, keine Hyperscaler |
+| Dedicated Server | ✔ | STRATO, Contabo, verwaltet bei All-Inkl und Hetzner |
 | PaaS, Serverless | ✘ | nicht modelliert, kein Server- oder Instanzangebot |
+| Konfiguratoren, Stundenpreise | ✘ | keine feste Paketliste mit Monatspreis, z. B. Infomaniak VPS Cloud |
 | Colocation, Reseller-Hosting | ✘ | nicht modelliert |
 | Domain-, E-Mail- oder Website-Baukasten-Produkte | ✘ | kein Hosting im Sinn des Profils |
 
@@ -154,9 +154,11 @@ Profil `managed` schliesst Angebote mit `selbst` aus. Profil `egal` akzeptiert a
 | Wert | Bedeutung |
 |---|---|
 | `shared` | Shared Hosting / Webhosting-Pakete |
-| `managed` | verwaltetes Hosting, inkl. Managed WordPress |
-| `vps` | virtueller Server, selbst administriert |
-| `cloud` | skalierbare Instanzen / Container-Plattform (Developer-Cloud, keine Hyperscaler) |
+| `managed` | verwaltetes Webhosting ohne eigenen Server, z. B. Managed WordPress |
+| `vps` | virtueller Einzelserver mit festen Ressourcen, verwaltet oder selbst administriert, auch wenn der Anbieter ihn Cloud nennt |
+| `cloud` | horizontal skalierbar: Kubernetes oder Auto-Scaling-Instanzen (Developer-Cloud, keine Hyperscaler) |
+
+Die Kategorie beschreibt den Produkttyp. Die Verwaltung ist ein eigenes Merkmal und kommt von der Seite, sonst gilt der Default der Kategorie.
 | `dedicated` | dedizierter physischer Server |
 
 ## Preis
@@ -182,6 +184,7 @@ Profil `managed` schliesst Angebote mit `selbst` aus. Profil `egal` akzeptiert a
 | Domain, E-Mail, SSL inklusive | bei Shared/Managed Standard |
 | PHP-/DB-Versionen, Tech-Stack | bei allen Kandidaten gegeben |
 | DDoS-Schutz, Firewall, Monitoring | schwer vergleichbar |
+| Geteilte vs. dedizierte vCPU bei virtuellen Servern | Fokus der Arbeit liegt auf der KI-Pipeline, nicht auf einem vollständigen Hosting-Modell. Kein Referenzprofil braucht die Unterscheidung |
 | Support-Sprache, Nachhaltigkeit | nicht entscheidungsrelevant für die Szenarien |
 
 Setup-Gebühr und Inklusiv-Traffic sind nicht ausgeschlossen, sondern in den Preisregeln geregelt (`scoring-spezifikation.md`, Stufe 0). Die Vertragslaufzeit wird extrahiert und ausgewiesen, fliesst aber weder in den Preis noch in den Score ein.

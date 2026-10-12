@@ -9,10 +9,10 @@
     "support": 0.05
   },
   "kategorie_defaults": {
-    "shared":    { "docker_support": false, "verwaltung": "managed", "ressourcentyp": "shared" },
-    "managed":   { "docker_support": false, "verwaltung": "managed", "ressourcentyp": "shared" },
-    "vps":       { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "vserver" },
-    "cloud":     { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "vserver" },
-    "dedicated": { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "dediziert" }
+    "shared":    { "docker_support": false, "verwaltung": "managed", "ressourcentyp": "shared",    "skalierung": 1 },
+    "managed":   { "docker_support": false, "verwaltung": "managed", "ressourcentyp": "shared",    "skalierung": 1 },
+    "vps":       { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "vserver",   "skalierung": 1 },
+    "cloud":     { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "vserver",   "skalierung": 2 },
+    "dedicated": { "docker_support": true,  "verwaltung": "selbst",  "ressourcentyp": "dediziert", "skalierung": 0 }
   }
 }

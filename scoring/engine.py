@@ -16,13 +16,16 @@ CONFIG_PFAD = Path(__file__).with_name("config.json")
 
 RANG_RESSOURCENTYP = {"shared": 0, "vserver": 1, "dediziert": 2}
 KOSTEN_KRITERIEN = {"preis_chf_monat"}  # tiefer = besser, alle anderen höher = besser
-DEFAULT_FELDER = ("docker_support", "verwaltung", "ressourcentyp")
+# Verwaltung zuerst, weil der Docker-Default von ihr abhängt.
+DEFAULT_FELDER = ("verwaltung", "docker_support", "ressourcentyp", "skalierung")
 # Angebotsfelder aus K.O.-Filter und Bewertung. Fehlt eines, kommt es in fehlende_felder.
 WERT_FELDER = (
     "cpu_vcores", "ram_gb", "storage_gb", "bandbreite_mbit",
     "skalierung", "backup", "support",
     "docker_support", "ressourcentyp", "verwaltung",
 )
+# K.O.-Kriterien mit Mindestwert: Angebotsfeld, Profilfeld. Ohne Angebotswert kein Ausschluss.
+KO_MINDESTWERTE = (("ram_gb", "ram_gb_min"), ("storage_gb", "storage_gb_min"), ("skalierung", "skalierung_min"))
 # Profilfelder, deren null das Flag anforderung_unspezifiziert auslöst. traffic_peak darf null sein.
 PROFIL_FELDER = (
     "app_typ", "traffic_normal_min", "traffic_normal_max",
@@ -48,7 +51,8 @@ def aufbereiten(angebot, config):
     """Kopie des Angebots mit effektivem Monatspreis, Defaults und Feldlisten.
 
     Preis: (Setup + 12 × Monatspreis) / 12, Fremdwährung 1:1, gerundet auf Rappen.
-    Defaults: nur für Felder, die null sind, je nach Kategorie.
+    Defaults: nur für Felder, die null sind, je nach Kategorie. Verwaltete Server
+    (verwaltung managed) bekommen Docker nur, wenn die Seite es nennt.
     """
     a = dict(angebot)
 
@@ -63,7 +67,10 @@ def aufbereiten(angebot, config):
     defaults = config["kategorie_defaults"].get(a.get("kategorie"), {})
     for feld in DEFAULT_FELDER:
         if a.get(feld) is None and feld in defaults:
-            a[feld] = defaults[feld]
+            wert = defaults[feld]
+            if feld == "docker_support" and a.get("verwaltung") == "managed":
+                wert = False  # kein Root-Zugang
+            a[feld] = wert
             a["abgeleitete_felder"].append(feld)
 
     a["fehlende_felder"] = [f for f in WERT_FELDER if a.get(f) is None]
@@ -95,11 +102,7 @@ def ausschlussgruende(profil, a, config):
     if budget is not None and preis is not None and preis > budget:
         gruende.append(_grund("preis_chf_monat", budget, preis))
 
-    for kriterium, profilfeld in (
-        ("ram_gb", "ram_gb_min"),
-        ("storage_gb", "storage_gb_min"),
-        ("skalierung", "skalierung_min"),
-    ):
+    for kriterium, profilfeld in KO_MINDESTWERTE:
         minimum, wert = profil.get(profilfeld), a.get(kriterium)
         if minimum is not None and wert is not None and wert < minimum:
             gruende.append(_grund(kriterium, minimum, wert))
@@ -184,7 +187,8 @@ def _ausgabe(a, flags):
 def bewerte(profil, angebote, config):
     """Einstiegspunkt: Profil und Angebote rein, Empfehlung mit Ranking raus.
 
-    Ranking nach Score absteigend, Tie-Break tieferer Preis, dann Anbieter und Produkt.
+    Ranking: zuerst Angebote, deren geprüfte K.O.-Werte belegt sind, dann nach Score
+    absteigend. Tie-Break tieferer Preis, dann Anbieter und Produkt.
     Ausgeschlossene alphabetisch nach Anbieter und Produkt. Das Ergebnis hängt so nicht
     von der Reihenfolge der Eingabe ab.
     """
@@ -199,7 +203,11 @@ def bewerte(profil, angebote, config):
 
     ausgeschlossen.sort(key=lambda x: (x["anbieter"] or "", x["produkt"] or ""))
     bewerten(kandidaten, config["gewichte"])
-    kandidaten.sort(key=lambda a: (-a["score"], a["preis_chf_monat"], a.get("anbieter") or "", a.get("produkt") or ""))
+    for a in kandidaten:
+        # Ein K.O.-Wert, den das Profil prüft, aber die Seite nicht nennt.
+        a["ko_unbelegt"] = [k for k, pf in KO_MINDESTWERTE if profil.get(pf) is not None and a.get(k) is None]
+    kandidaten.sort(key=lambda a: (bool(a["ko_unbelegt"]), -a["score"], a["preis_chf_monat"],
+                                   a.get("anbieter") or "", a.get("produkt") or ""))
 
     profil_unvollstaendig = any(profil.get(f) is None for f in PROFIL_FELDER)
     ranking = []
@@ -207,6 +215,8 @@ def bewerte(profil, angebote, config):
         flags = []
         if a["fehlende_felder"]:
             flags.append("unvollstaendige_datenbasis")
+        if a["ko_unbelegt"]:
+            flags.append("ko_wert_unbelegt")
         if profil_unvollstaendig:
             flags.append("anforderung_unspezifiziert")
         ranking.append(_ausgabe(a, flags))

@@ -111,21 +111,31 @@ def test_ko_je_kriterium(kriterium, anforderung, wert):
 
 
 @pytest.mark.parametrize(
-    "kategorie, docker, verwaltung, ressourcentyp",
+    "kategorie, docker, verwaltung, ressourcentyp, skalierung",
     [
-        ("shared", False, "managed", "shared"),
-        ("managed", False, "managed", "shared"),
-        ("vps", True, "selbst", "vserver"),
-        ("cloud", True, "selbst", "vserver"),
-        ("dedicated", True, "selbst", "dediziert"),
+        ("shared", False, "managed", "shared", 1),
+        ("managed", False, "managed", "shared", 1),
+        ("vps", True, "selbst", "vserver", 1),
+        ("cloud", True, "selbst", "vserver", 2),
+        ("dedicated", True, "selbst", "dediziert", 0),
     ],
 )
-def test_kategorie_defaults(kategorie, docker, verwaltung, ressourcentyp):
-    roh = angebot(kategorie=kategorie, docker_support=None, verwaltung=None, ressourcentyp=None)
+def test_kategorie_defaults(kategorie, docker, verwaltung, ressourcentyp, skalierung):
+    roh = angebot(kategorie=kategorie, docker_support=None, verwaltung=None, ressourcentyp=None, skalierung=None)
     a = aufbereiten(roh, CONFIG)
 
-    assert (a["docker_support"], a["verwaltung"], a["ressourcentyp"]) == (docker, verwaltung, ressourcentyp)
-    assert set(a["abgeleitete_felder"]) == {"docker_support", "verwaltung", "ressourcentyp"}
+    werte = (a["docker_support"], a["verwaltung"], a["ressourcentyp"], a["skalierung"])
+    assert werte == (docker, verwaltung, ressourcentyp, skalierung)
+    assert set(a["abgeleitete_felder"]) == {"docker_support", "verwaltung", "ressourcentyp", "skalierung"}
+
+
+@pytest.mark.parametrize("kategorie", ["vps", "dedicated"])
+def test_docker_default_bei_verwaltetem_server(kategorie):
+    roh = angebot(kategorie=kategorie, verwaltung="managed", docker_support=None, ressourcentyp=None)
+    a = aufbereiten(roh, CONFIG)
+
+    assert a["docker_support"] is False
+    assert "docker_support" in a["abgeleitete_felder"]
 
 
 # Fehlende Werte: Preis und Kategorie schliessen aus, alle anderen nicht
@@ -152,17 +162,23 @@ def test_fehlender_wert_umverteilt():
     assert "unvollstaendige_datenbasis" in a["flags"]
 
 
-# Docker, Verwaltung und Ressourcentyp sind nach Stufe 0 nie null (Kategorie-Defaults).
-@pytest.mark.parametrize(
-    "feld, anforderung",
-    [("ram_gb", {"ram_gb_min": 8}), ("storage_gb", {"storage_gb_min": 50}), ("skalierung", {"skalierung_min": 2})],
-)
+# Docker, Verwaltung, Ressourcentyp und Skalierung sind nach Stufe 0 nie null (Kategorie-Defaults).
+@pytest.mark.parametrize("feld, anforderung", [("ram_gb", {"ram_gb_min": 8}), ("storage_gb", {"storage_gb_min": 50})])
 def test_fehlender_ko_wert_kein_ausschluss(feld, anforderung):
     ergebnis = bewerte(profil(**anforderung), [angebot(**{feld: None})], CONFIG)
     a = ergebnis["ranking"][0]
 
     assert feld in a["fehlende_felder"]
     assert "unvollstaendige_datenbasis" in a["flags"]
+    assert "ko_wert_unbelegt" in a["flags"]
+
+
+def test_belegte_vor_unbelegten():
+    # Ohne RAM-Angabe trotz besserem Score hinter dem Angebot mit belegtem RAM.
+    angebote = [angebot(anbieter="Lücke", ram_gb=None, monatspreis_regulaer=1), angebot(anbieter="Belegt", ram_gb=8)]
+    ergebnis = bewerte(profil(ram_gb_min=8), angebote, CONFIG)
+
+    assert [e["anbieter"] for e in ergebnis["ranking"]] == ["Belegt", "Lücke"]
 
 
 # Profilwert null (Variante B): keine Prüfung, Flag anforderung_unspezifiziert

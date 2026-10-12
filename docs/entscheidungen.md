@@ -45,7 +45,7 @@ Kurznotizen pro Arbeitsschritt. Nummern verweisen auf `PLAN.md`.
 - Extraktion liefert Werte in Katalog-Einheiten und als Monatspreis. Die Engine verteilt nur die Setup-Gebühr und übernimmt Fremdwährungen 1:1.
 - Ausgabe gerundet auf 4 Stellen, Tests vergleichen mit Toleranz 0.001.
 - Ausgeschlossene alphabetisch sortiert, damit das Ergebnis nicht von der Reihenfolge der Discovery abhängt.
-- Fixtures sind Richtwerte, Abgleich mit echten Seiten in 3.11.
+- Fixtures zunächst Richtwerte, seit 1.5 echte Pakete.
 - Kubernetes-Cluster zählen zu `cloud` (Container-Plattform). Ausgeschlossen bleiben PaaS und Serverless.
 - Tests: `pytest` in lokaler `.venv`, Befehl im README.
 
@@ -60,6 +60,24 @@ Kurznotizen pro Arbeitsschritt. Nummern verweisen auf `PLAN.md`.
 - Das LLM rechnet Einheiten (MB → GB) und reine Jahrespreise (÷ 12) selbst um. Ob das zuverlässig klappt, prüft 3.11.
 - Ob SmartScraperGraph das JSON Schema direkt nutzt oder ein Pydantic-Modell braucht, klärt 3.11.
 - Tests: Schema gültig, alle Fixtures entsprechen ihm, Engine-Felder sind im Schema enthalten. Validierung mit `jsonschema`.
+
+## 1.5 Anbieterliste
+
+- Managed VPS aufgenommen. Kategorie nach Produkttyp, Verwaltung als eigenes Merkmal von der Seite, sonst Default. Die frühere Begründung für den Ausschluss war falsch, Defaults greifen nur bei fehlender Angabe.
+- `cloud` = horizontal skalierbar (Kubernetes oder Auto-Scaling-Instanzen). Virtuelle Einzelserver sind `vps`, auch wenn der Anbieter sie Cloud nennt. Nötig für S2 (`skalierung_min` 2).
+- Anbieterliste und Fixtures von Hand erhoben, nicht mit ScrapeGraphAI. Sie sind die Referenz für Discovery (3.10) und Extraktion (3.11). Mit dem geprüften Werkzeug erzeugt, würde sich die Pipeline in der Evaluation mit sich selbst vergleichen. Mittelweg (Werkzeug schlägt vor, Mensch prüft) verworfen, weil vorgeschlagene Werte eher übernommen als geprüft werden.
+- Anbieterliste als JSON wie Config, Schema und Fixtures: `scraping/provider_list.json`, je Seite vermerkt, ob sie maschinell lesbar ist.
+- Erhebungsregeln für die Fixtures: je Anbieter, Kategorie und Verwaltung das günstigste und das teuerste Paket der Hauptproduktseite. Nur feste Paketlisten, keine Konfiguratoren und Stundenpreise. Regulärer Preis nach Aktionsende in der Standardansicht der Seite, Setup-Gebühr, MwSt. wie angezeigt. Abruf mit Schweizer Einstellung (de-CH), Rechenzentrum Schweiz, sonst Deutschland. CPU bei Dedicated in Threads, wenn angegeben. Speicher nutzbar: RAID 1 zählt einmal, ohne RAID-Angabe die Summe. Kubernetes: ein Knoten, nur ab-Preise je Knotentyp, das teuerste Paket ist der höchste ab-Preis. Ab-Preise auch bei Infomaniak Webhosting und STRATO Dedicated übernommen. Setup-Gebühr ohne Betrag (Contabo) bleibt `null`, der Preis ist dort zu tief. Nicht genannte Werte bleiben `null`.
+- Anbieterliste = Pflicht-Referenz für Discovery (3.10). Weitere passende Seiten desselben Anbieters gelten als Zusatzfund, nicht als Fehler, z. B. Hetzner AX-Matrix, STRATO Linux vServer, IONOS Managed Kubernetes, netcup Managed Cloud Cluster. Messung (Pflicht-Treffer, Zusatzfunde, Fehlgriffe) im Evaluationskonzept (1.6).
+- Im Browser bestätigt: Hetzner Webhosting S und XL, Hetzner MA200 (256 GB, Lesefehler korrigiert), netcup VPS 500, IONOS VPS S+, STRATO VPS S.
+- Ergebnis: 48 Pakete von 9 Anbietern, Stand 2026-10-11. Ersetzt die Richtwerte aus 1.3.
+- Befunde der Erhebung: cyon blockiert automatische Abrufe (Bot-Schutz). Hetzner lädt Preise über eine eigene Preisschnittstelle nach (netto, die Seite zeigt mit Schweizer MwSt.). DigitalOcean-Droplets nur im Browser lesbar. Contabo zeigt je nach Standort des Abrufs andere Preise. Infomaniak nutzt für VPS Cloud und Kubernetes Konfiguratoren und Stundenpreise. Werte lesbar machen ist damit eine Kernaufgabe von Discovery und Extraktion, siehe 1.5b.
+- Engine nach den echten Daten angepasst (DSR-Iteration): Docker-Default `false` bei verwalteten Servern (kein Root-Zugang). Skalierung als Kategorie-Default (shared, managed, vps 1, cloud 2, dedicated 0), weil kaum eine Seite sie nennt. Rangfolge belegt vor unbelegt mit Flag `ko_wert_unbelegt`, weil sonst ein Kubernetes-Knoten ohne RAM-Angabe S2 und S3 gewinnt.
+- netcup zeigt je Paket zwei Preise: durchgestrichen der Preis bei 1 Monat Laufzeit, gross der Preis der vorausgewählten 12-Monats-Laufzeit (−13 %). Übernommen gemäss Standardansicht der 12-Monats-Preis. Der automatische Abruf zeigt deutsche MwSt. (19 %), der Browser mit Schweizer Standort 8.1 %. Werte auf Schweizer MwSt. umgerechnet, am VPS 500 im Browser bestätigt (7.50 €).
+
+## 1.5b Machbarkeitstest ScrapeGraphAI
+
+- Variante A: Open-Source-Bibliothek (`SearchGraph`, `SmartScraperGraph`) mit BFH-LLM, wie im Proposal und Entscheid 0.1. Die Cloud-API (eigenes LLM, API-Key, Credits) nur als Vergleich, falls A an JavaScript-Seiten scheitert.
 
 ## Übergreifend
 

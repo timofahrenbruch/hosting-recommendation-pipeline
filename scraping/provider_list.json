@@ -1,0 +1,86 @@
+{
+  "hinweis": "Suchraum für Discovery und statische URL-Liste im MVP. Stand 2026-10-11, Abruf mit Schweizer Einstellung (de-CH). Je Anbieter die Hauptproduktseite pro Kategorie und Verwaltung. lesbar: ja = Paketliste mit Preisen maschinell lesbar, sonst Grund. Regeln: docs/entscheidungen.md, 1.5.",
+  "anbieter": [
+    {
+      "name": "Hostpoint", "anbieterkategorie": "Schweizer Hosting", "domain": "hostpoint.ch",
+      "seiten": [
+        { "kategorie": "shared", "verwaltung": null, "url": "https://www.hostpoint.ch/webhosting/webhosting-angebote.html", "lesbar": "ja" },
+        { "kategorie": "vps", "verwaltung": "managed", "url": "https://www.hostpoint.ch/managed-flex-server/managed-flex-server.html", "lesbar": "ja" }
+      ]
+    },
+    {
+      "name": "Infomaniak", "anbieterkategorie": "Schweizer Hosting", "domain": "infomaniak.com",
+      "seiten": [
+        { "kategorie": "shared", "verwaltung": null, "url": "https://www.infomaniak.com/de/hosting/webhosting", "lesbar": "ja, nur ab-Preise" },
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.infomaniak.com/de/hosting/vps-lite", "lesbar": "ja" },
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.infomaniak.com/de/hosting/vps-cloud", "lesbar": "Konfigurator" },
+        { "kategorie": "vps", "verwaltung": "managed", "url": "https://www.infomaniak.com/de/hosting/cloud-server-managed", "lesbar": "Konfigurator" },
+        { "kategorie": "cloud", "verwaltung": null, "url": "https://www.infomaniak.com/de/hosting/public-cloud/kubernetes", "lesbar": "Stundenpreise" }
+      ]
+    },
+    {
+      "name": "cyon", "anbieterkategorie": "Schweizer Hosting", "domain": "cyon.ch",
+      "seiten": [
+        { "kategorie": null, "verwaltung": null, "url": "https://www.cyon.ch/", "lesbar": "Bot-Schutz" }
+      ]
+    },
+    {
+      "name": "IONOS", "anbieterkategorie": "DACH Hosting", "domain": "ionos.de",
+      "seiten": [
+        { "kategorie": "shared", "verwaltung": null, "url": "https://www.ionos.de/hosting/webhosting", "lesbar": "ja" },
+        { "kategorie": "managed", "verwaltung": null, "url": "https://www.ionos.de/hosting/wordpress-hosting", "lesbar": "ja" },
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.ionos.de/server/vps", "lesbar": "ja" },
+        { "kategorie": "dedicated", "verwaltung": null, "url": "https://www.ionos.de/server/dedicated-server", "lesbar": "keine Paketliste" }
+      ]
+    },
+    {
+      "name": "STRATO", "anbieterkategorie": "DACH Hosting", "domain": "strato.de",
+      "seiten": [
+        { "kategorie": "shared", "verwaltung": null, "url": "https://www.strato.de/hosting/", "lesbar": "ja" },
+        { "kategorie": "managed", "verwaltung": null, "url": "https://www.strato.de/hosting/wordpress-hosting/", "lesbar": "ja" },
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.strato.de/server/vps/", "lesbar": "ja" },
+        { "kategorie": "dedicated", "verwaltung": null, "url": "https://www.strato.de/server/linux-dedicated-server/", "lesbar": "ja, nur ab-Preise" }
+      ]
+    },
+    {
+      "name": "All-Inkl", "anbieterkategorie": "DACH Hosting", "domain": "all-inkl.com",
+      "seiten": [
+        { "kategorie": "shared", "verwaltung": null, "url": "https://all-inkl.com/webhosting/paketvergleich", "lesbar": "ja" },
+        { "kategorie": "dedicated", "verwaltung": "managed", "url": "https://all-inkl.com/server", "lesbar": "ja" }
+      ]
+    },
+    {
+      "name": "Hetzner", "anbieterkategorie": "Developer-VPS", "domain": "hetzner.com",
+      "seiten": [
+        { "kategorie": "shared", "verwaltung": null, "url": "https://www.hetzner.com/de/webhosting/", "lesbar": "Preise per Preisschnittstelle nachgeladen" },
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.hetzner.com/de/cloud/regular-performance/", "lesbar": "Preise per Preisschnittstelle nachgeladen" },
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.hetzner.com/de/cloud/general-purpose/", "lesbar": "Preise per Preisschnittstelle nachgeladen" },
+        { "kategorie": "vps", "verwaltung": "managed", "url": "https://www.hetzner.com/de/managed-server/", "lesbar": "Preise per Preisschnittstelle nachgeladen" },
+        { "kategorie": "dedicated", "verwaltung": "managed", "url": "https://www.hetzner.com/de/managed-server/", "lesbar": "Preise per Preisschnittstelle nachgeladen" },
+        { "kategorie": "dedicated", "verwaltung": null, "url": "https://www.hetzner.com/de/dedicated-rootserver/", "lesbar": "keine Paketliste" }
+      ]
+    },
+    {
+      "name": "netcup", "anbieterkategorie": "Developer-VPS", "domain": "netcup.com",
+      "seiten": [
+        { "kategorie": "shared", "verwaltung": null, "url": "https://www.netcup.com/de/hosting", "lesbar": "ja" },
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.netcup.com/de/server/vps", "lesbar": "ja, zwei Preise je Paket" },
+        { "kategorie": "vps", "verwaltung": "managed", "url": "https://www.netcup.com/de/professional/managed-server/managed-private-server", "lesbar": "ja, zwei Preise je Paket" }
+      ]
+    },
+    {
+      "name": "Contabo", "anbieterkategorie": "Developer-VPS", "domain": "contabo.com",
+      "seiten": [
+        { "kategorie": "vps", "verwaltung": null, "url": "https://contabo.com/de/vps/", "lesbar": "ja, Preis standortabhängig" },
+        { "kategorie": "dedicated", "verwaltung": null, "url": "https://contabo.com/de/dedicated-servers/", "lesbar": "ja, Preis standortabhängig" }
+      ]
+    },
+    {
+      "name": "DigitalOcean", "anbieterkategorie": "Developer-Cloud", "domain": "digitalocean.com",
+      "seiten": [
+        { "kategorie": "vps", "verwaltung": null, "url": "https://www.digitalocean.com/pricing/droplets", "lesbar": "nur im Browser" },
+        { "kategorie": "cloud", "verwaltung": null, "url": "https://www.digitalocean.com/pricing/kubernetes", "lesbar": "ja, nur ab-Preise ohne Leistungsangaben" }
+      ]
+    }
+  ]
+}
